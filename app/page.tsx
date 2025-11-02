@@ -36,6 +36,7 @@ export default function Home() {
           <YamlPreview
             yaml={yaml}
             filename={selectedFile === "umbrel-app" ? "umbrel-app.yml" : "docker-compose.yml"}
+            config={selectedFile === "umbrel-app" ? config : undefined}
           />
         </div>
       </div>
