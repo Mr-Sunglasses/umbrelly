@@ -8,7 +8,8 @@ import { Button } from "./ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { FieldWithTooltip } from "./field-with-tooltip";
 import { TooltipProvider } from "./ui/tooltip";
-import { Plus, Trash2, AlertTriangle } from "lucide-react";
+import { Plus, Trash2, AlertTriangle, ChevronDown, Info } from "lucide-react";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "./ui/collapsible";
 import { Separator } from "./ui/separator";
 import {
   AlertDialog,
@@ -161,7 +162,7 @@ export function DockerComposeForm({ config, onChange }: DockerComposeFormProps) 
           <FieldWithTooltip
             label="Version"
             required
-            tooltip="Docker Compose file format version. Version 3.7 is recommended for Umbrel apps."
+            tooltip="The Docker Compose file format version. Umbrel requires version 3.7 or higher. This ensures compatibility with all Docker Compose features needed for Umbrel apps. Don't change this unless you have a specific reason."
           >
             <Input
               placeholder="3.7"
@@ -192,9 +193,17 @@ export function DockerComposeForm({ config, onChange }: DockerComposeFormProps) 
               </Select>
             </div>
 
-            <p className="text-sm text-muted-foreground">
-              The Umbrel App Proxy automatically protects an app by requiring the user to enter their Umbrel password (either when they login into the main Web UI or by visiting an app directly e.g. http://umbrel.local:3002)
-            </p>
+            <div className="text-sm text-muted-foreground space-y-2">
+              <p>
+                <strong>What is App Proxy?</strong> The Umbrel App Proxy is a security layer that automatically protects your app by requiring users to enter their Umbrel password.
+              </p>
+              <p>
+                Users must authenticate either when they login to the main Umbrel Web UI or when visiting an app directly (e.g., http://umbrel.local:3002). This prevents unauthorized access to your app.
+              </p>
+              <p className="text-yellow-600 dark:text-yellow-500">
+                <strong>⚠️ Important:</strong> It's highly recommended to keep this enabled unless your app has its own authentication system.
+              </p>
+            </div>
 
             {config.appProxy.enabled && (
               <div className="space-y-4 p-4 border rounded-lg bg-muted/30">
@@ -202,10 +211,10 @@ export function DockerComposeForm({ config, onChange }: DockerComposeFormProps) 
                 <FieldWithTooltip
                   label="APP_HOST"
                   required
-                  tooltip="Format: <app-id>_<web-container-name>_1 (e.g. 'btc-rpc-explorer_web_1'). Note that the '_1' at the end is needed."
+                  tooltip="The DNS name of your web container. Format: <app-id>_<service-name>_1 (e.g., 'btc-rpc-explorer_web_1'). The '_1' suffix is required by Docker Compose for the first instance of a service. This tells the proxy which container to route traffic to."
                 >
                   <Input
-                    placeholder="btc-rpc-explorer_web_1"
+                    placeholder="myapp_web_1"
                     value={config.appProxy.APP_HOST}
                     onChange={(e) => updateAppProxy({ APP_HOST: e.target.value })}
                   />
@@ -215,7 +224,7 @@ export function DockerComposeForm({ config, onChange }: DockerComposeFormProps) 
                 <FieldWithTooltip
                   label="APP_PORT"
                   required
-                  tooltip="The port number that your web container is listening on"
+                  tooltip="The internal port number that your web application is listening on inside the container (e.g., 3000 for Node.js apps, 8080 for many Java apps, 80 for nginx). This is NOT the external port - the proxy will handle external routing."
                 >
                   <Input
                     type="number"
@@ -228,7 +237,7 @@ export function DockerComposeForm({ config, onChange }: DockerComposeFormProps) 
                 {/* Optional: PROXY_AUTH_ADD */}
                 <FieldWithTooltip
                   label="PROXY_AUTH_ADD (Optional)"
-                  tooltip='Set to "false" to disable authentication completely'
+                  tooltip='Set to "false" to completely disable Umbrel authentication for this app. Only use this if your app has its own built-in authentication system. When disabled, anyone who can access your Umbrel can access this app without entering a password.'
                 >
                   <Select
                     value={config.appProxy.PROXY_AUTH_ADD || "default"}
@@ -247,7 +256,7 @@ export function DockerComposeForm({ config, onChange }: DockerComposeFormProps) 
                 {/* Optional: PROXY_AUTH_WHITELIST */}
                 <FieldWithTooltip
                   label="PROXY_AUTH_WHITELIST (Optional)"
-                  tooltip="Whitelist specific paths to bypass authentication (e.g. '/api/*')"
+                  tooltip="Whitelist specific URL paths to bypass Umbrel authentication. Useful when your app has a public API that should be accessible without Umbrel login, but the main UI should be protected. Example: '/api/*' allows all /api endpoints without auth. Use * as wildcard."
                 >
                   <Input
                     placeholder="/api/*"
@@ -259,7 +268,7 @@ export function DockerComposeForm({ config, onChange }: DockerComposeFormProps) 
                 {/* Optional: PROXY_AUTH_BLACKLIST */}
                 <FieldWithTooltip
                   label="PROXY_AUTH_BLACKLIST (Optional)"
-                  tooltip="Blacklist specific paths to require authentication (e.g. '/admin/*'). Use with WHITELIST to protect specific sections."
+                  tooltip="Blacklist specific URL paths to require authentication even when WHITELIST is set to '*'. Useful when you want most of the app public but certain sections protected. Example: Set WHITELIST to '*' and BLACKLIST to '/admin/*' to protect only the admin section with Umbrel password."
                 >
                   <Input
                     placeholder="/admin/*"
@@ -397,7 +406,11 @@ function ServiceEditor({
       </div>
 
       {/* Service Name */}
-      <FieldWithTooltip label="Service Name" required tooltip="Unique name for this service">
+      <FieldWithTooltip 
+        label="Service Name" 
+        required 
+        tooltip="A unique name for this service within your docker-compose file. Common names are 'web', 'app', 'db', 'redis', etc. This name will be used as the DNS hostname that other services can use to connect to this container. Use lowercase letters, numbers, and hyphens only."
+      >
         <Input
           placeholder="web"
           value={service.name}
@@ -409,17 +422,20 @@ function ServiceEditor({
       <FieldWithTooltip
         label="Image"
         required
-        tooltip="Docker image in format: <docker-image>:<tag>@sha256:<digest>"
+        tooltip="The Docker image to use for this service. Format: repository/image:tag@sha256:digest. The SHA256 digest is strongly recommended for security and reproducibility - it ensures you always get the exact same image. You can find the digest on Docker Hub or by running 'docker pull image:tag' and checking the output."
       >
         <Input
-          placeholder="nginx:latest@sha256:abc123..."
+          placeholder="nginx:1.21.0@sha256:abc123..."
           value={service.image}
           onChange={(e) => onUpdate({ image: e.target.value })}
         />
       </FieldWithTooltip>
 
       {/* Restart Policy */}
-      <FieldWithTooltip label="Restart Policy" tooltip="When to restart the container">
+      <FieldWithTooltip 
+        label="Restart Policy" 
+        tooltip="Defines when Docker should automatically restart this container: 'no' = never restart automatically, 'always' = always restart (even after reboot), 'on-failure' = restart only if container exits with error (recommended for Umbrel apps), 'unless-stopped' = always restart unless manually stopped."
+      >
         <Select
           value={service.restart}
           onValueChange={(value) => onUpdate({ restart: value })}
@@ -428,10 +444,10 @@ function ServiceEditor({
             <SelectValue />
           </SelectTrigger>
           <SelectContent position="popper" sideOffset={5}>
-            <SelectItem value="no">no</SelectItem>
-            <SelectItem value="always">always</SelectItem>
-            <SelectItem value="on-failure">on-failure</SelectItem>
-            <SelectItem value="unless-stopped">unless-stopped</SelectItem>
+            <SelectItem value="no">no - Never restart</SelectItem>
+            <SelectItem value="always">always - Always restart</SelectItem>
+            <SelectItem value="on-failure">on-failure - Restart on error (recommended)</SelectItem>
+            <SelectItem value="unless-stopped">unless-stopped - Restart unless manually stopped</SelectItem>
           </SelectContent>
         </Select>
       </FieldWithTooltip>
@@ -441,7 +457,7 @@ function ServiceEditor({
         <div className="flex items-center justify-between">
           <FieldWithTooltip
             label="Ports (Optional)"
-            tooltip="You do not need to expose the port that your app's web server is listening on if you're using the app_proxy service. This is handled by APP_HOST and APP_PORT. Only expose additional ports if needed."
+            tooltip="Port mappings in format 'host:container' (e.g., 8080:80 maps container port 80 to host port 8080). IMPORTANT: You do NOT need to expose your app's main web port if using app_proxy - that's handled automatically via APP_HOST and APP_PORT. Only add ports here for additional services like databases, APIs, or other non-web interfaces that need direct access."
           >
             <div />
           </FieldWithTooltip>
@@ -453,7 +469,7 @@ function ServiceEditor({
         {service.ports.map((port, portIndex) => (
           <div key={portIndex} className="flex gap-2">
             <Input
-              placeholder="8080:8080"
+              placeholder="8080:8080 or 5432:5432"
               value={port}
               onChange={(e) => onUpdatePort(portIndex, e.target.value)}
             />
@@ -473,7 +489,7 @@ function ServiceEditor({
         <div className="flex items-center justify-between">
           <FieldWithTooltip
             label="Volumes (Optional)"
-            tooltip="Bind mounts for persistent data. Must start with ${APP_DATA_DIR}/. Example: ${APP_DATA_DIR}/data:/app/data or use special variables like ${APP_LIGHTNING_NODE_DATA_DIR}:/lnd:ro or ${APP_BITCOIN_DATA_DIR}:/bitcoin:ro"
+            tooltip="Bind mounts for persistent data storage. Format: 'host_path:container_path' or 'host_path:container_path:ro' (for read-only). ALL volumes MUST start with ${APP_DATA_DIR}/ which Umbrel will replace with your app's data directory. You can also use ${APP_LIGHTNING_NODE_DATA_DIR} for Lightning node data (read-only) or ${APP_BITCOIN_DATA_DIR} for Bitcoin Core data (read-only). Without volumes, data will be lost when container restarts!"
           >
             <div />
           </FieldWithTooltip>
@@ -501,11 +517,11 @@ function ServiceEditor({
       </div>
 
       {/* Environment Variables */}
-      <div className="space-y-2">
+      <div className="space-y-3">
         <div className="flex items-center justify-between">
           <FieldWithTooltip
             label="Environment Variables (Optional)"
-            tooltip="Special Umbrel variables: $DEVICE_HOSTNAME, $DEVICE_DOMAIN_NAME, $TOR_PROXY_IP, $TOR_PROXY_PORT, $APP_HIDDEN_SERVICE, $APP_PASSWORD, $APP_SEED"
+            tooltip="Environment variables to pass to your container. Choose Object Format for key-value pairs or Array Format for 'KEY=value' strings."
           >
             <div />
           </FieldWithTooltip>
@@ -522,6 +538,134 @@ function ServiceEditor({
             </SelectContent>
           </Select>
         </div>
+
+        {/* Special Umbrel Variables Info - Collapsible */}
+        <Collapsible>
+          <CollapsibleTrigger asChild>
+            <button className="flex items-center gap-2 text-sm font-medium text-primary hover:text-primary/80 transition-colors group w-full">
+              <Info className="h-4 w-4" />
+              <span>Special Umbrel Environment Variables</span>
+              <ChevronDown className="h-4 w-4 transition-transform group-data-[state=open]:rotate-180" />
+            </button>
+          </CollapsibleTrigger>
+          <CollapsibleContent className="mt-3">
+            <div className="rounded-lg border bg-card p-4 shadow-sm">
+              <div className="grid gap-4">
+                {/* System Variables */}
+                <div>
+                  <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">
+                    System Level
+                  </h4>
+                  <div className="space-y-2.5">
+                    <div className="flex gap-3">
+                      <div className="flex-shrink-0">
+                        <code className="inline-flex items-center px-2 py-1 rounded-md bg-blue-500/10 text-blue-600 dark:text-blue-400 text-xs font-mono font-semibold border border-blue-500/20">
+                          $DEVICE_HOSTNAME
+                        </code>
+                      </div>
+                      <div className="flex-1 text-sm text-muted-foreground">
+                        <p>Server device hostname (e.g., <code className="text-xs bg-muted px-1 py-0.5 rounded">"umbrel"</code>)</p>
+                        <p className="text-xs mt-1 text-muted-foreground/80">💡 Use to display device name in your app's UI</p>
+                      </div>
+                    </div>
+
+                    <div className="flex gap-3">
+                      <div className="flex-shrink-0">
+                        <code className="inline-flex items-center px-2 py-1 rounded-md bg-blue-500/10 text-blue-600 dark:text-blue-400 text-xs font-mono font-semibold border border-blue-500/20">
+                          $DEVICE_DOMAIN_NAME
+                        </code>
+                      </div>
+                      <div className="flex-1 text-sm text-muted-foreground">
+                        <p>.local domain name (e.g., <code className="text-xs bg-muted px-1 py-0.5 rounded">"umbrel.local"</code>)</p>
+                        <p className="text-xs mt-1 text-muted-foreground/80">💡 Create links to other services on the same Umbrel</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <Separator />
+
+                {/* Tor Variables */}
+                <div>
+                  <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">
+                    Tor Proxy
+                  </h4>
+                  <div className="space-y-2.5">
+                    <div className="flex gap-3">
+                      <div className="flex-shrink-0">
+                        <code className="inline-flex items-center px-2 py-1 rounded-md bg-purple-500/10 text-purple-600 dark:text-purple-400 text-xs font-mono font-semibold border border-purple-500/20">
+                          $TOR_PROXY_IP
+                        </code>
+                      </div>
+                      <div className="flex-1 text-sm text-muted-foreground">
+                        <p>Local IP of Tor SOCKS proxy</p>
+                        <p className="text-xs mt-1 text-muted-foreground/80">💡 Route app traffic through Tor for privacy</p>
+                      </div>
+                    </div>
+
+                    <div className="flex gap-3">
+                      <div className="flex-shrink-0">
+                        <code className="inline-flex items-center px-2 py-1 rounded-md bg-purple-500/10 text-purple-600 dark:text-purple-400 text-xs font-mono font-semibold border border-purple-500/20">
+                          $TOR_PROXY_PORT
+                        </code>
+                      </div>
+                      <div className="flex-1 text-sm text-muted-foreground">
+                        <p>Tor proxy port (typically <code className="text-xs bg-muted px-1 py-0.5 rounded">9050</code>)</p>
+                        <p className="text-xs mt-1 text-muted-foreground/80">💡 Combine with $TOR_PROXY_IP to configure Tor</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <Separator />
+
+                {/* App Specific Variables */}
+                <div>
+                  <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">
+                    App Specific
+                  </h4>
+                  <div className="space-y-2.5">
+                    <div className="flex gap-3">
+                      <div className="flex-shrink-0">
+                        <code className="inline-flex items-center px-2 py-1 rounded-md bg-green-500/10 text-green-600 dark:text-green-400 text-xs font-mono font-semibold border border-green-500/20">
+                          $APP_HIDDEN_SERVICE
+                        </code>
+                      </div>
+                      <div className="flex-1 text-sm text-muted-foreground">
+                        <p>Your app's .onion address (Tor hidden service)</p>
+                        <p className="text-xs mt-1 text-muted-foreground/80">💡 Display to users for anonymous Tor access</p>
+                      </div>
+                    </div>
+
+                    <div className="flex gap-3">
+                      <div className="flex-shrink-0">
+                        <code className="inline-flex items-center px-2 py-1 rounded-md bg-green-500/10 text-green-600 dark:text-green-400 text-xs font-mono font-semibold border border-green-500/20">
+                          $APP_PASSWORD
+                        </code>
+                      </div>
+                      <div className="flex-1 text-sm text-muted-foreground">
+                        <p>Unique random password shown in Umbrel UI</p>
+                        <p className="text-xs mt-1 text-muted-foreground/80">💡 Use for app authentication (shown to user)</p>
+                      </div>
+                    </div>
+
+                    <div className="flex gap-3">
+                      <div className="flex-shrink-0">
+                        <code className="inline-flex items-center px-2 py-1 rounded-md bg-green-500/10 text-green-600 dark:text-green-400 text-xs font-mono font-semibold border border-green-500/20">
+                          $APP_SEED
+                        </code>
+                      </div>
+                      <div className="flex-1 text-sm text-muted-foreground">
+                        <p>256-bit deterministic seed from user's Umbrel seed</p>
+                        <p className="text-xs mt-1 text-muted-foreground/80">💡 Generate deterministic keys that persist across restores</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </CollapsibleContent>
+        </Collapsible>
 
         {service.environmentFormat === "object" ? (
           <>
