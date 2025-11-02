@@ -12,7 +12,7 @@ interface SidebarProps {
 export function Sidebar({ selectedFile, onFileSelect }: SidebarProps) {
   const files: { type: FileType; label: string; disabled?: boolean }[] = [
     { type: "umbrel-app", label: "umbrel-app.yml" },
-    { type: "docker-compose", label: "docker-compose.yml", disabled: true },
+    { type: "docker-compose", label: "docker-compose.yml" },
   ];
 
   return (

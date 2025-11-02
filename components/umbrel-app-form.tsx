@@ -312,13 +312,11 @@ export function UmbrelAppForm({ config, onChange }: UmbrelAppFormProps) {
           <Select
             value={config.deterministicPassword ? "true" : "false"}
             onValueChange={(value) => {
-              console.log("Deterministic Password changed to:", value);
               const isEnabled = value === "true";
               const newConfig = { ...config, deterministicPassword: isEnabled };
               if (isEnabled) {
                 newConfig.defaultPassword = "";
               }
-              console.log("New config:", newConfig);
               onChange(newConfig);
             }}
           >
