@@ -49,7 +49,7 @@ export function UmbrelAppForm({ config, onChange }: UmbrelAppFormProps) {
         <FieldWithTooltip
           label="Manifest Version"
           required
-          tooltip="There are currently two manifest versions: 1 and 1.1. Version 1 is the basic version and is sufficient for most apps. However, if your app requires the use of hooks (scripts that are run at different stages of the app lifecycle), you need to use version 1.1. Hooks allow you to perform custom actions at different stages of the app's lifecycle, such as before the app starts (pre-start), after the app installs (post-install), and more. If your app doesn't need to use hooks, you can stick with manifest version 1."
+          tooltip="Select the manifest format version for your app. Version 1 is the standard format for most apps and includes all basic configuration fields. Version 1.1 adds support for lifecycle hooks - custom scripts that run at specific stages (pre-start, post-install, post-update, pre-uninstall). Choose 1.1 only if your app needs to execute custom initialization scripts, database migrations, or cleanup tasks. For simple apps without special setup requirements, use version 1."
         >
           <Select
             value={config.manifestVersion}
@@ -69,7 +69,7 @@ export function UmbrelAppForm({ config, onChange }: UmbrelAppFormProps) {
         <FieldWithTooltip
           label="ID"
           required
-          tooltip="Unique identifier for your app (lowercase letters and dashes only)"
+          tooltip="A unique identifier for your app in the Umbrel ecosystem. Must be lowercase letters, numbers, and dashes only (e.g., 'my-awesome-app'). This ID is used in file paths, environment variables, and cannot be changed after submission. Choose something descriptive and memorable. Avoid generic names that might conflict with other apps."
         >
           <Input
             placeholder="my-awesome-app"
@@ -82,7 +82,7 @@ export function UmbrelAppForm({ config, onChange }: UmbrelAppFormProps) {
         <FieldWithTooltip
           label="Category"
           required
-          tooltip="Select the category that best describes your app"
+          tooltip="The primary category where your app will appear in the Umbrel App Store. Choose the category that best matches your app's main function. This helps users discover your app when browsing by category. If your app serves multiple purposes, pick the most prominent one."
         >
           <Select
             value={config.category}
@@ -105,7 +105,7 @@ export function UmbrelAppForm({ config, onChange }: UmbrelAppFormProps) {
         <FieldWithTooltip
           label="Name"
           required
-          tooltip="The display name of your app"
+          tooltip="The human-readable display name shown in the Umbrel App Store and UI. This is what users see when browsing apps. Can include uppercase letters, spaces, and special characters. Keep it concise (2-3 words) and recognizable. Examples: 'Bitcoin Node', 'Nextcloud', 'VS Code Server'."
         >
           <Input
             placeholder="My Awesome App"
@@ -118,7 +118,7 @@ export function UmbrelAppForm({ config, onChange }: UmbrelAppFormProps) {
         <FieldWithTooltip
           label="Version"
           required
-          tooltip="Version of your app (e.g., 1.0.0)"
+          tooltip="The version number of the underlying software your app runs. Use semantic versioning format (e.g., '2.5.0', '1.0.0-beta'). This should match the version of the Docker image you're using. Users see this to know what version they're running. Update this number when you update the app's Docker image to a newer version."
         >
           <Input
             placeholder="1.0.0"
@@ -131,7 +131,7 @@ export function UmbrelAppForm({ config, onChange }: UmbrelAppFormProps) {
         <FieldWithTooltip
           label="Tagline"
           required
-          tooltip="A short, catchy description of your app (does not need to end with a period)"
+          tooltip="A short, catchy one-liner (5-10 words) that captures what your app does. Shown below the app name in the store. Should be punchy and memorable. No period at the end. Examples: 'Run your own VPN server', 'Self-hosted photo management', 'Collaborative document editing'. Focus on the main benefit or use case."
         >
           <Input
             placeholder="The best app for doing awesome things"
@@ -144,7 +144,7 @@ export function UmbrelAppForm({ config, onChange }: UmbrelAppFormProps) {
         <FieldWithTooltip
           label="Description"
           required
-          tooltip="A detailed description of your app and its features"
+          tooltip="A comprehensive description of your app (2-4 paragraphs). Explain what the app does, key features, main use cases, and why users would want to install it. Use clear, accessible language avoiding excessive technical jargon. This appears on the app's detail page. Make it engaging and informative to help users decide if the app meets their needs."
         >
           <Textarea
             placeholder="This app helps you do amazing things..."
@@ -181,7 +181,7 @@ export function UmbrelAppForm({ config, onChange }: UmbrelAppFormProps) {
         <FieldWithTooltip
           label="Developer"
           required
-          tooltip="Name of the app developer or organization"
+          tooltip="The name of the person, team, or organization that develops and maintains the original software. This is NOT you (unless you're the actual developer). For example, if you're packaging Nextcloud, the developer is 'Nextcloud GmbH'. This gives proper attribution to the original creators."
         >
           <Input
             placeholder="John Doe"
@@ -194,7 +194,7 @@ export function UmbrelAppForm({ config, onChange }: UmbrelAppFormProps) {
         <FieldWithTooltip
           label="Website"
           required
-          tooltip="Official website URL for your app"
+          tooltip="The official website URL of the original software project. This should be the main homepage where users can learn more about the software (e.g., https://nextcloud.com for Nextcloud). Must be a valid HTTPS URL. Users may visit this to read documentation or learn about features before installing."
         >
           <Input
             type="url"
@@ -207,7 +207,7 @@ export function UmbrelAppForm({ config, onChange }: UmbrelAppFormProps) {
         {/* Dependencies */}
         <FieldWithTooltip
           label="Dependencies"
-          tooltip="Comma-separated list of other Umbrel apps this app depends on (e.g., bitcoin, lightning)"
+          tooltip="Other Umbrel apps that must be installed for your app to work. Enter as comma-separated app IDs (e.g., 'bitcoin, lightning'). When users install your app, Umbrel will automatically install dependencies first. Common dependencies: 'bitcoin' (Bitcoin Core), 'lightning' (LND), 'electrs' (Electrum Server). Leave empty if your app is standalone."
         >
           <Input
             placeholder="bitcoin, lightning"
@@ -220,7 +220,7 @@ export function UmbrelAppForm({ config, onChange }: UmbrelAppFormProps) {
         <FieldWithTooltip
           label="Repository"
           required
-          tooltip="GitHub or GitLab repository URL"
+          tooltip="The source code repository URL for the original software project (usually GitHub or GitLab). This should link to the upstream project's repository, not your fork. Users and reviewers use this to verify the software's authenticity and license. Example: 'https://github.com/nextcloud/server'."
         >
           <Input
             type="url"
@@ -234,7 +234,7 @@ export function UmbrelAppForm({ config, onChange }: UmbrelAppFormProps) {
         <FieldWithTooltip
           label="Support"
           required
-          tooltip="URL where users can get help (e.g., GitHub issues, forum, Discord)"
+          tooltip="Where users can get help with this app. Can be the project's GitHub Issues page, community forum, Discord server, or support website. Users experiencing problems will visit this link. Make sure it's actively monitored. If the project has multiple support channels, choose the most appropriate for Umbrel-specific issues."
         >
           <Input
             type="url"
@@ -248,7 +248,7 @@ export function UmbrelAppForm({ config, onChange }: UmbrelAppFormProps) {
         <FieldWithTooltip
           label="Port"
           required
-          tooltip="Port number where your app runs on Umbrel OS"
+          tooltip="The external port number users will use to access your app on their Umbrel (e.g., http://umbrel.local:PORT). Choose a unique port not used by other Umbrel apps. Recommended range: 8000-9999 or 3000-3999. This is mapped to your app's internal container port via app_proxy in docker-compose.yml. Check the Umbrel app list to avoid conflicts."
         >
           <Input
             type="number"
@@ -261,7 +261,7 @@ export function UmbrelAppForm({ config, onChange }: UmbrelAppFormProps) {
         {/* Gallery */}
         <FieldWithTooltip
           label="Gallery"
-          tooltip="Comma-separated list of image URLs for app screenshots (leave empty for new app submissions)"
+          tooltip="Screenshot URLs for your app's gallery. LEAVE EMPTY FOR NEW APP SUBMISSIONS - screenshots should be included in your pull request as image files, not URLs. This field is only used for existing apps that are being updated. If filling for an update, provide comma-separated HTTPS URLs to hosted images (1280x720 recommended)."
         >
           <ProtectedField
             isEnabled={galleryEnabled}
@@ -283,7 +283,7 @@ export function UmbrelAppForm({ config, onChange }: UmbrelAppFormProps) {
         {/* Path */}
         <FieldWithTooltip
           label="Path"
-          tooltip="Optional custom path for accessing your app"
+          tooltip="Optional URL path suffix for your app. Most apps should leave this empty. Only use if your app requires a specific path after the port (e.g., '/admin', '/web'). The full URL would be http://umbrel.local:PORT/path. This is rare - only needed if the app's web interface isn't at the root path. Leave empty unless you're certain it's needed."
         >
           <Input
             placeholder="Leave empty unless needed"
@@ -295,7 +295,7 @@ export function UmbrelAppForm({ config, onChange }: UmbrelAppFormProps) {
         {/* Default Username */}
         <FieldWithTooltip
           label="Default Username"
-          tooltip="Default username for app authentication (if applicable)"
+          tooltip="The default username for logging into your app, if it has built-in authentication. This will be displayed to users in the Umbrel UI after installation. Only fill this if the app comes with a pre-configured username. Examples: 'admin', 'umbrel'. Leave empty if the app doesn't have authentication or if users create their own accounts during setup."
         >
           <Input
             placeholder="Leave empty unless needed"
@@ -307,7 +307,7 @@ export function UmbrelAppForm({ config, onChange }: UmbrelAppFormProps) {
         {/* Deterministic Password */}
         <FieldWithTooltip
           label="Deterministic Password"
-          tooltip="Enable this if the app uses a deterministic password generation method. When enabled, defaultPassword field will be removed from the config."
+          tooltip="Set to 'Yes' if your app generates its own password deterministically from $APP_SEED. This means the password is automatically derived from the user's Umbrel seed and will be the same if they restore from backup. When enabled, the 'Default Password' field is hidden and users won't see a fixed password in the UI. Choose 'No' if using $APP_PASSWORD (random password shown to user) or no password at all."
         >
           <Select
             value={config.deterministicPassword ? "true" : "false"}
@@ -336,7 +336,7 @@ export function UmbrelAppForm({ config, onChange }: UmbrelAppFormProps) {
         {!config.deterministicPassword && (
           <FieldWithTooltip
             label="Default Password"
-            tooltip="Default password for app authentication (if applicable)"
+            tooltip="The default password for logging into your app. This will be shown to users in the Umbrel UI. You can use $APP_PASSWORD to have Umbrel generate a unique random password for each user. Alternatively, specify a fixed password if the app requires it. Leave empty if the app doesn't require authentication or if users set up passwords during first-time setup."
           >
             <Input
               type="password"
@@ -351,7 +351,7 @@ export function UmbrelAppForm({ config, onChange }: UmbrelAppFormProps) {
         <FieldWithTooltip
           label="Submitter"
           required
-          tooltip="Name of the person submitting this app to Umbrel"
+          tooltip="YOUR name - the person packaging and submitting this app to the Umbrel App Store. This is different from 'Developer' (which is the original software creator). Your name will be credited in the app store as the community member who packaged this app for Umbrel. Use your real name or GitHub username."
         >
           <Input
             placeholder="Jane Smith"
@@ -364,7 +364,7 @@ export function UmbrelAppForm({ config, onChange }: UmbrelAppFormProps) {
         <FieldWithTooltip
           label="Submission"
           required
-          tooltip="Pull request URL for the app submission"
+          tooltip="The GitHub pull request URL where you're submitting this app to the Umbrel App Store repository. Format: 'https://github.com/getumbrel/umbrel-apps/pull/XXX'. You'll create the pull request on GitHub first, then add that URL here. This links your configuration to the actual submission for tracking and review purposes."
         >
           <Input
             type="url"
