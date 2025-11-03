@@ -52,11 +52,27 @@ const config = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        violet: {
+          400: "#7752FE",
+          500: "#6441E0",
+        },
+        gold: {
+          400: "#D2A85E",
+          500: "#C09850",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
-        md: "calc(var(--radius) - 2px)",
-        sm: "calc(var(--radius) - 4px)",
+        md: "calc(var(--radius) - 4px)",
+        sm: "calc(var(--radius) - 8px)",
+        xl: "calc(var(--radius) + 0.5rem)",
+        "2xl": "calc(var(--radius) + 1rem)",
+      },
+      boxShadow: {
+        'glow-violet': '0 0 20px rgba(119, 82, 254, 0.3)',
+        'glow-gold': '0 0 20px rgba(210, 168, 94, 0.3)',
+        'ambient': '0 8px 32px rgba(0, 0, 0, 0.4)',
+        'ambient-lg': '0 12px 48px rgba(0, 0, 0, 0.5)',
       },
       keyframes: {
         "accordion-down": {
