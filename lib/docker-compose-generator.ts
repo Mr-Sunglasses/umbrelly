@@ -77,7 +77,7 @@ export function generateDockerComposeYaml(config: DockerComposeConfig): string {
     composeObject.services[service.name] = serviceObj;
   });
 
-  return yaml.dump(composeObject, {
+  let yamlOutput = yaml.dump(composeObject, {
     indent: 2,
     lineWidth: -1,
     noRefs: true,
@@ -85,5 +85,75 @@ export function generateDockerComposeYaml(config: DockerComposeConfig): string {
     forceQuotes: false,
     flowLevel: -1,
   });
+
+  // Post-process to ensure APP_PORT, PROXY_AUTH_WHITELIST and PROXY_AUTH_BLACKLIST are always quoted
+  yamlOutput = yamlOutput.replace(/^(\s+APP_PORT:\s+)(.+)$/gm, (match, prefix, value) => {
+    if (!value.startsWith('"') && !value.startsWith("'")) {
+      return `${prefix}"${value}"`;
+    }
+    return match;
+  });
+  
+  yamlOutput = yamlOutput.replace(/^(\s+PROXY_AUTH_WHITELIST:\s+)(.+)$/gm, (match, prefix, value) => {
+    if (!value.startsWith('"') && !value.startsWith("'")) {
+      return `${prefix}"${value}"`;
+    }
+    return match;
+  });
+  
+  yamlOutput = yamlOutput.replace(/^(\s+PROXY_AUTH_BLACKLIST:\s+)(.+)$/gm, (match, prefix, value) => {
+    if (!value.startsWith('"') && !value.startsWith("'")) {
+      return `${prefix}"${value}"`;
+    }
+    return match;
+  });
+
+  // Post-process to ensure ports are always quoted (except in app_proxy)
+  const lines = yamlOutput.split('\n');
+  let inPortsSection = false;
+  let portsSectionIndent = 0;
+  let currentService = '';
+  
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    const currentIndent = line.search(/\S/);
+    
+    // Track which service we're in
+    const serviceMatch = line.match(/^\s{2}(\w+):/);
+    if (serviceMatch) {
+      currentService = serviceMatch[1];
+    }
+    
+    // Check if we're entering a ports section
+    if (/^\s+ports:\s*$/.test(line)) {
+      inPortsSection = true;
+      portsSectionIndent = currentIndent;
+      continue;
+    }
+    
+    // Check if we've left the ports section
+    if (inPortsSection && currentIndent >= 0 && currentIndent <= portsSectionIndent && !/^\s*-/.test(line)) {
+      inPortsSection = false;
+    }
+    
+    // If we're in a ports section and this is an array item
+    // BUT skip app_proxy service
+    if (inPortsSection && currentService !== 'app_proxy' && /^\s+-\s+(.+)$/.test(line)) {
+      const match = line.match(/^(\s+-\s+)(.+)$/);
+      if (match) {
+        const prefix = match[1];
+        const value = match[2];
+        
+        // Check if it's a port pattern and not already quoted
+        if (/^[\d.:]+$/.test(value) && !value.startsWith('"') && !value.startsWith("'")) {
+          lines[i] = `${prefix}"${value}"`;
+        }
+      }
+    }
+  }
+  
+  yamlOutput = lines.join('\n');
+
+  return yamlOutput;
 }
 
