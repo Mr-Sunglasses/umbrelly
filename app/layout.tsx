@@ -5,8 +5,16 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Umbrel Config Generator",
-  description: "Generate configuration files for Umbrel apps",
+  title: "umbrelly",
+  description: "Generate configuration files for Umbrel apps - Self-hosted on umbrelOS",
+  icons: {
+    icon: [
+      {
+        url: '/favicon.svg',
+        type: 'image/svg+xml',
+      },
+    ],
+  },
 };
 
 export default function RootLayout({

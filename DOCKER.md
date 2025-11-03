@@ -1,6 +1,6 @@
 # Docker Deployment Guide
 
-This guide covers deploying the Umbrel Config Generator using Docker.
+This guide covers deploying umbrelly using Docker.
 
 ## Prerequisites
 
@@ -28,7 +28,7 @@ This guide covers deploying the Umbrel Config Generator using Docker.
 
 4. **View logs**
    ```bash
-   docker-compose logs -f umbrel-configurator
+   docker-compose logs -f umbrelly
    ```
 
 5. **Stop the container**
@@ -40,27 +40,27 @@ This guide covers deploying the Umbrel Config Generator using Docker.
 
 1. **Build the image**
    ```bash
-   docker build -t umbrel-configurator .
+   docker build -t umbrelly .
    ```
 
 2. **Run the container**
    ```bash
    docker run -d \
-     --name umbrel-configurator \
+     --name umbrelly \
      -p 3000:3000 \
      --restart unless-stopped \
-     umbrel-configurator
+     umbrelly
    ```
 
 3. **View logs**
    ```bash
-   docker logs -f umbrel-configurator
+   docker logs -f umbrelly
    ```
 
 4. **Stop and remove**
    ```bash
-   docker stop umbrel-configurator
-   docker rm umbrel-configurator
+   docker stop umbrelly
+   docker rm umbrelly
    ```
 
 ## Configuration
@@ -78,17 +78,17 @@ You can customize the application using environment variables:
 
 ```bash
 docker run -d \
-  --name umbrel-configurator \
+  --name umbrelly \
   -p 8080:8080 \
   -e PORT=8080 \
-  umbrel-configurator
+  umbrelly
 ```
 
 Or in `docker-compose.yml`:
 
 ```yaml
 services:
-  umbrel-configurator:
+  umbrelly:
     # ... other config
     ports:
       - "8080:8080"
@@ -117,7 +117,7 @@ Check health status:
 ```bash
 docker ps
 # or
-docker inspect umbrel-configurator --format='{{.State.Health.Status}}'
+docker inspect umbrelly --format='{{.State.Health.Status}}'
 ```
 
 ## Network Configuration
@@ -133,7 +133,7 @@ If you want to persist any data or customize configuration, you can mount volume
 
 ```yaml
 services:
-  umbrel-configurator:
+  umbrelly:
     volumes:
       - ./custom-config:/app/config
 ```
@@ -144,7 +144,7 @@ services:
 
 1. Check logs:
    ```bash
-   docker-compose logs umbrel-configurator
+   docker-compose logs umbrelly
    ```
 
 2. Check if port 3000 is already in use:
@@ -168,12 +168,12 @@ services:
 
 2. Exec into container:
    ```bash
-   docker exec -it umbrel-configurator sh
+   docker exec -it umbrelly sh
    ```
 
 3. Test health endpoint manually:
    ```bash
-   docker exec umbrel-configurator wget -qO- http://localhost:3000
+   docker exec umbrelly wget -qO- http://localhost:3000
    ```
 
 ### Out of disk space
@@ -189,7 +189,7 @@ services:
 2. **Set resource limits**:
    ```yaml
    services:
-     umbrel-configurator:
+     umbrelly:
        deploy:
          resources:
            limits:

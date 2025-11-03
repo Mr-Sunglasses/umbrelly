@@ -1,6 +1,8 @@
-# Umbrel Config Generator
+# umbrelly ☁️
 
 A modern web application to generate configuration files for Umbrel apps. Built with Next.js, TypeScript, Tailwind CSS, and shadcn/ui.
+
+> Proudly self-hosted on umbrelOS
 
 ## Features
 
@@ -49,17 +51,17 @@ The application will be available at [http://localhost:3000](http://localhost:30
 
 ```bash
 # Build the image
-docker build -t umbrel-configurator .
+docker build -t umbrelly .
 
 # Run the container
-docker run -d -p 3000:3000 --name umbrel-configurator umbrel-configurator
+docker run -d -p 3000:3000 --name umbrelly umbrelly
 
 # View logs
-docker logs -f umbrel-configurator
+docker logs -f umbrelly
 
 # Stop the container
-docker stop umbrel-configurator
-docker rm umbrel-configurator
+docker stop umbrelly
+docker rm umbrelly
 ```
 
 ### Health Check

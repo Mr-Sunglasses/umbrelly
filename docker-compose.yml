@@ -1,11 +1,11 @@
 version: "3.7"
 
 services:
-  umbrel-configurator:
+  umbrelly:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: umbrel-configurator
+    container_name: umbrelly
     restart: unless-stopped
     ports:
       - "3000:3000"
