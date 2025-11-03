@@ -201,7 +201,7 @@ export function DockerComposeForm({ config, onChange }: DockerComposeFormProps) 
                 Users must authenticate either when they login to the main Umbrel Web UI or when visiting an app directly (e.g., http://umbrel.local:3002). This prevents unauthorized access to your app.
               </p>
               <p className="text-yellow-600 dark:text-yellow-500">
-                <strong>⚠️ Important:</strong> It's highly recommended to keep this enabled unless your app has its own authentication system.
+                <strong>⚠️ Important:</strong> It&apos;s highly recommended to keep this enabled unless your app has its own authentication system.
               </p>
             </div>
 
@@ -294,7 +294,7 @@ export function DockerComposeForm({ config, onChange }: DockerComposeFormProps) 
 
             {config.services.length === 0 ? (
               <p className="text-sm text-muted-foreground text-center py-8 border-2 border-dashed rounded-lg">
-                No services added yet. Click "Add Service" to create one.
+                No services added yet. Click &quot;Add Service&quot; to create one.
               </p>
             ) : (
               <div className="space-y-6">
@@ -564,8 +564,8 @@ function ServiceEditor({
                         </code>
                       </div>
                       <div className="flex-1 text-sm text-muted-foreground">
-                        <p>Server device hostname (e.g., <code className="text-xs bg-muted px-1 py-0.5 rounded">"umbrel"</code>)</p>
-                        <p className="text-xs mt-1 text-muted-foreground/80">💡 Use to display device name in your app's UI</p>
+                        <p>Server device hostname (e.g., <code className="text-xs bg-muted px-1 py-0.5 rounded">&quot;umbrel&quot;</code>)</p>
+                        <p className="text-xs mt-1 text-muted-foreground/80">💡 Use to display device name in your app&apos;s UI</p>
                       </div>
                     </div>
 
@@ -576,7 +576,7 @@ function ServiceEditor({
                         </code>
                       </div>
                       <div className="flex-1 text-sm text-muted-foreground">
-                        <p>.local domain name (e.g., <code className="text-xs bg-muted px-1 py-0.5 rounded">"umbrel.local"</code>)</p>
+                        <p>.local domain name (e.g., <code className="text-xs bg-muted px-1 py-0.5 rounded">&quot;umbrel.local&quot;</code>)</p>
                         <p className="text-xs mt-1 text-muted-foreground/80">💡 Create links to other services on the same Umbrel</p>
                       </div>
                     </div>
@@ -632,7 +632,7 @@ function ServiceEditor({
                         </code>
                       </div>
                       <div className="flex-1 text-sm text-muted-foreground">
-                        <p>Your app's .onion address (Tor hidden service)</p>
+                        <p>Your app&apos;s .onion address (Tor hidden service)</p>
                         <p className="text-xs mt-1 text-muted-foreground/80">💡 Display to users for anonymous Tor access</p>
                       </div>
                     </div>
@@ -656,7 +656,7 @@ function ServiceEditor({
                         </code>
                       </div>
                       <div className="flex-1 text-sm text-muted-foreground">
-                        <p>256-bit deterministic seed from user's Umbrel seed</p>
+                        <p>256-bit deterministic seed from user&apos;s Umbrel seed</p>
                         <p className="text-xs mt-1 text-muted-foreground/80">💡 Generate deterministic keys that persist across restores</p>
                       </div>
                     </div>
