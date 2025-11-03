@@ -1,0 +1,27 @@
+version: "3.7"
+
+services:
+  umbrel-configurator:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: umbrel-configurator
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+    networks:
+      - umbrel-network
+    # Health check to ensure the app is running
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+networks:
+  umbrel-network:
+    driver: bridge
+

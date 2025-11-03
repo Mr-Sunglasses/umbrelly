@@ -28,6 +28,50 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
+## Docker Deployment
+
+### Using Docker Compose (Recommended)
+
+```bash
+# Build and start the container
+docker-compose up -d
+
+# View logs
+docker-compose logs -f
+
+# Stop the container
+docker-compose down
+```
+
+The application will be available at [http://localhost:3000](http://localhost:3000)
+
+### Using Docker
+
+```bash
+# Build the image
+docker build -t umbrel-configurator .
+
+# Run the container
+docker run -d -p 3000:3000 --name umbrel-configurator umbrel-configurator
+
+# View logs
+docker logs -f umbrel-configurator
+
+# Stop the container
+docker stop umbrel-configurator
+docker rm umbrel-configurator
+```
+
+### Health Check
+
+The Docker container includes a health check that monitors the application status:
+
+```bash
+# Check container health
+docker ps
+# Look for "healthy" status in the STATUS column
+```
+
 ### Build
 
 ```bash
