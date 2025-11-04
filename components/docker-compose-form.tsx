@@ -212,13 +212,53 @@ export function DockerComposeForm({ config, onChange }: DockerComposeFormProps) 
                 <FieldWithTooltip
                   label="APP_HOST"
                   required
-                  tooltip="The DNS name of your web container. Format: <app-id>_<service-name>_1 (e.g., 'btc-rpc-explorer_web_1'). The '_1' suffix is required by Docker Compose for the first instance of a service. This tells the proxy which container to route traffic to."
+                  tooltip="The DNS name of your web container. Format: <image-name>_<service-name>_1 (e.g., 'umbrelly_web_1'). Select a service below to auto-generate, or enter manually."
                 >
-                  <Input
-                    placeholder="myapp_web_1"
-                    value={config.appProxy.APP_HOST}
-                    onChange={(e) => updateAppProxy({ APP_HOST: e.target.value })}
-                  />
+                  <div className="space-y-2">
+                    {config.services.length > 0 && (
+                      <div className="flex gap-2 items-center">
+                        <Select
+                          value=""
+                          onValueChange={(serviceId) => {
+                            const service = config.services.find(s => s.id === serviceId);
+                            if (service && service.image && service.name) {
+                              // Extract image name from full image string
+                              // e.g., "mrsunglasses/umbrelly:0.0.2" -> "umbrelly"
+                              const imageParts = service.image.split(':')[0].split('/');
+                              const imageName = imageParts[imageParts.length - 1];
+                              
+                              // Generate APP_HOST: <image-name>_<service-name>_1
+                              const appHost = `${imageName}_${service.name}_1`;
+                              updateAppProxy({ APP_HOST: appHost });
+                            }
+                          }}
+                        >
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="🚀 Auto-generate from service..." />
+                          </SelectTrigger>
+                          <SelectContent position="popper" sideOffset={5}>
+                            {config.services.map((service) => {
+                              if (!service.image || !service.name) return null;
+                              const imageParts = service.image.split(':')[0].split('/');
+                              const imageName = imageParts[imageParts.length - 1];
+                              const generatedHost = `${imageName}_${service.name}_1`;
+                              
+                              return (
+                                <SelectItem key={service.id} value={service.id}>
+                                  {service.name} → {generatedHost}
+                                </SelectItem>
+                              );
+                            })}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    )}
+                    <Input
+                      placeholder="myapp_web_1"
+                      value={config.appProxy.APP_HOST}
+                      onChange={(e) => updateAppProxy({ APP_HOST: e.target.value })}
+                    />
+                  </div>
                 </FieldWithTooltip>
 
                 {/* APP_PORT */}
