@@ -1,7 +1,12 @@
 # umbrelly ☁️
 
-A modern web application to generate configuration files for Umbrel apps. Built with Next.js, TypeScript, Tailwind CSS, and shadcn/ui.
+<h1 align="center">
+  <a href="https://umbrel.com/">
+    <img width="200" height="200" alt="image" src="https://github.com/user-attachments/assets/9b1127bd-d32a-43c7-9866-6619a8474f8c" />
+  </a>
+</h1>
 
+A modern web application to generate configuration files for Umbrel apps.
 > Proudly self-hosted on umbrelOS
 
 ## Features
