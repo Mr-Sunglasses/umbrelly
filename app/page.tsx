@@ -28,9 +28,9 @@ export default function Home() {
   }, [umbrelConfig, dockerConfig, selectedFile]);
 
   return (
-    <div className="flex flex-col min-h-screen bg-background">
+    <div className="flex flex-col h-screen bg-background overflow-hidden">
       {/* Premium Dark Header */}
-      <header className="glass-strong border-b border-white/10 ambient-shadow">
+      <header className="glass-strong border-b border-white/10 ambient-shadow flex-shrink-0">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-20">
             {/* Logo and Brand */}
@@ -83,12 +83,12 @@ export default function Home() {
       </header>
 
       {/* Main Content */}
-      <div className="flex flex-1 h-screen overflow-hidden">
+      <div className="flex flex-1 overflow-hidden">
         <Sidebar selectedFile={selectedFile} onFileSelect={setSelectedFile} />
         
         <div className="flex-1 flex min-w-0">
           {/* Form Section */}
-          <div className="w-1/2 border-r overflow-hidden flex-shrink-0">
+          <div className="w-1/2 border-r flex-shrink-0">
             {selectedFile === "umbrel-app" && (
               <UmbrelAppForm config={umbrelConfig} onChange={setUmbrelConfig} />
             )}
@@ -102,7 +102,7 @@ export default function Home() {
           </div>
 
           {/* Preview Section */}
-          <div className="w-1/2 bg-muted/10 overflow-hidden flex-shrink-0">
+          <div className="w-1/2 bg-muted/10 flex-shrink-0">
             <YamlPreview
               yaml={yaml}
               filename={selectedFile === "umbrel-app" ? "umbrel-app.yml" : "docker-compose.yml"}
