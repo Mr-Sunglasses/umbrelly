@@ -532,7 +532,7 @@ function ServiceEditor({
         <div className="flex items-center justify-between">
           <FieldWithTooltip
             label="Volumes (Optional)"
-            tooltip="Bind mounts for persistent data storage. Format: 'host_path:container_path' or 'host_path:container_path:ro' (for read-only). ALL volumes MUST start with ${APP_DATA_DIR}/ which Umbrel will replace with your app's data directory. You can also use ${APP_LIGHTNING_NODE_DATA_DIR} for Lightning node data (read-only) or ${APP_BITCOIN_DATA_DIR} for Bitcoin Core data (read-only). Without volumes, data will be lost when container restarts!"
+            tooltip="Bind mounts for persistent data storage. Choose between ${APP_DATA_DIR}/ (your app's private data directory) or ${UMBREL_ROOT}/data/storage/ (Umbrel's communal storage for downloads/shared files). Format: 'host_path:container_path' or 'host_path:container_path:ro' (read-only). Without volumes, data will be lost when container restarts!"
           >
             <div />
           </FieldWithTooltip>
@@ -541,20 +541,83 @@ function ServiceEditor({
             Add Volume
           </Button>
         </div>
+        
+        {service.volumes.some(v => v.includes('${UMBREL_ROOT}/data/storage/')) && (
+          <div className="p-3 border border-blue-500/20 bg-blue-500/10 rounded-lg text-sm">
+            <p className="font-medium text-blue-700 dark:text-blue-400 mb-1">
+              💡 Tip: Communal Storage Permission Required
+            </p>
+            <p className="text-blue-600 dark:text-blue-300">
+              You&apos;re using Umbrel&apos;s communal storage (<code className="text-xs bg-blue-500/20 px-1 py-0.5 rounded">$&#123;UMBREL_ROOT&#125;/data/storage/</code>). Make sure to enable the <strong>STORAGE_DOWNLOADS</strong> permission in your umbrel-app.yml configuration to access this shared storage directory.
+            </p>
+          </div>
+        )}
+        
         {service.volumes.map((volume, volumeIndex) => (
-          <div key={volumeIndex} className="flex gap-2">
-            <Input
-              placeholder="${APP_DATA_DIR}/data:/app/data"
-              value={volume}
-              onChange={(e) => onUpdateVolume(volumeIndex, e.target.value)}
-            />
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => onRemoveVolume(volumeIndex)}
-            >
-              <Trash2 className="h-4 w-4" />
-            </Button>
+          <div key={volumeIndex} className="space-y-2">
+            <div className="flex gap-2">
+              <Select
+                value={
+                  volume.startsWith('${UMBREL_ROOT}/data/storage/') 
+                    ? 'umbrel-storage' 
+                    : 'app-data'
+                }
+                onValueChange={(value) => {
+                  const parts = volume.split(':');
+                  const containerPath = parts[1] || '';
+                  const options = parts[2] || '';
+                  
+                  let newVolume = '';
+                  if (value === 'umbrel-storage') {
+                    newVolume = '${UMBREL_ROOT}/data/storage/';
+                  } else {
+                    newVolume = '${APP_DATA_DIR}/';
+                  }
+                  
+                  // Preserve container path and options if they exist
+                  if (containerPath) {
+                    newVolume += ':' + containerPath;
+                    if (options) {
+                      newVolume += ':' + options;
+                    }
+                  }
+                  
+                  onUpdateVolume(volumeIndex, newVolume);
+                }}
+              >
+                <SelectTrigger className="w-[280px]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent position="popper" sideOffset={5}>
+                  <SelectItem value="app-data">
+                    📁 App Data - $&#123;APP_DATA_DIR&#125;/
+                  </SelectItem>
+                  <SelectItem value="umbrel-storage">
+                    💾 Communal Storage - $&#123;UMBREL_ROOT&#125;/data/storage/
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+              
+              <Input
+                placeholder="data:/app/data or downloads:/downloads"
+                value={volume.replace(/^\$\{APP_DATA_DIR\}\//, '').replace(/^\$\{UMBREL_ROOT\}\/data\/storage\//, '')}
+                onChange={(e) => {
+                  const currentPrefix = volume.startsWith('${UMBREL_ROOT}/data/storage/') 
+                    ? '${UMBREL_ROOT}/data/storage/' 
+                    : '${APP_DATA_DIR}/';
+                  onUpdateVolume(volumeIndex, currentPrefix + e.target.value);
+                }}
+                className="flex-1"
+              />
+              
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => onRemoveVolume(volumeIndex)}
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
         ))}
       </div>
