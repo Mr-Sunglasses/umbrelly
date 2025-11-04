@@ -162,12 +162,13 @@ export function DockerComposeForm({ config, onChange }: DockerComposeFormProps) 
           <FieldWithTooltip
             label="Version"
             required
-            tooltip="The Docker Compose file format version. Umbrel requires version 3.7 or higher. This ensures compatibility with all Docker Compose features needed for Umbrel apps. Don't change this unless you have a specific reason."
+            tooltip="The Docker Compose file format version. Umbrel requires version 3.7. This field is locked to ensure compatibility with all Docker Compose features needed for Umbrel apps."
           >
             <Input
               placeholder="3.7"
-              value={config.version}
-              onChange={(e) => updateConfig({ version: e.target.value })}
+              value="3.7"
+              disabled
+              className="bg-muted cursor-not-allowed"
             />
           </FieldWithTooltip>
 
@@ -195,13 +196,13 @@ export function DockerComposeForm({ config, onChange }: DockerComposeFormProps) 
 
             <div className="text-sm text-muted-foreground space-y-2">
               <p>
-                <strong>What is App Proxy?</strong> The Umbrel App Proxy is a security layer that automatically protects your app by requiring users to enter their Umbrel password.
+                <strong>What is App Proxy?</strong> The Umbrel App Proxy handles routing traffic to your app and provides authentication protection.
               </p>
               <p>
-                Users must authenticate either when they login to the main Umbrel Web UI or when visiting an app directly (e.g., http://umbrel.local:3002). This prevents unauthorized access to your app.
+                <strong>Important distinction:</strong> This toggle completely removes the app_proxy service from docker-compose.yml. The proxy does more than just authentication - it handles traffic routing and network configuration. The <code className="text-xs bg-muted px-1 py-0.5 rounded">PROXY_AUTH_ADD</code> environment variable below controls authentication, not this toggle.
               </p>
               <p className="text-yellow-600 dark:text-yellow-500">
-                <strong>⚠️ Important:</strong> It&apos;s highly recommended to keep this enabled unless your app has its own authentication system.
+                <strong>⚠️ Note:</strong> Only disable the App Proxy Service if your app needs to run in host network mode or has specific network requirements that conflict with the proxy.
               </p>
             </div>
 
@@ -237,7 +238,7 @@ export function DockerComposeForm({ config, onChange }: DockerComposeFormProps) 
                 {/* Optional: PROXY_AUTH_ADD */}
                 <FieldWithTooltip
                   label="PROXY_AUTH_ADD (Optional)"
-                  tooltip='Set to "false" to completely disable Umbrel authentication for this app. Only use this if your app has its own built-in authentication system. When disabled, anyone who can access your Umbrel can access this app without entering a password.'
+                  tooltip='Set to "false" to disable Umbrel authentication for this app while keeping the proxy service active for routing. The proxy will still handle traffic routing, but won&apos;t require authentication. Only use this if your app has its own built-in authentication system. When set to false, anyone who can access your Umbrel can access this app without entering the Umbrel password.'
                 >
                   <Select
                     value={config.appProxy.PROXY_AUTH_ADD || "default"}
@@ -326,14 +327,25 @@ export function DockerComposeForm({ config, onChange }: DockerComposeFormProps) 
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2">
               <AlertTriangle className="h-5 w-5 text-yellow-500" />
-              Disable App Proxy?
+              Disable App Proxy Service?
             </AlertDialogTitle>
-            <AlertDialogDescription className="text-left">
-              <p className="mb-3">
-                Disabling the App Proxy is <strong>not recommended</strong>.
+            <AlertDialogDescription className="text-left space-y-3">
+              <p>
+                <strong>Warning:</strong> This will completely remove the <code className="text-xs bg-muted px-1 py-0.5 rounded">app_proxy</code> service from your docker-compose.yml.
               </p>
               <p>
-                The App Proxy provides automatic authentication protection for your app. Without it, your app will be publicly accessible without requiring the Umbrel password.
+                <strong>Important:</strong> The App Proxy does more than just handle authentication. It provides:
+              </p>
+              <ul className="list-disc list-inside space-y-1 ml-2">
+                <li>Traffic routing to your app</li>
+                <li>Network configuration and management</li>
+                <li>Authentication (controlled by PROXY_AUTH_ADD)</li>
+              </ul>
+              <p className="text-yellow-600 dark:text-yellow-500">
+                <strong>Note:</strong> If you only want to disable authentication while keeping the proxy active, keep this enabled and set <code className="text-xs bg-muted px-1 py-0.5 rounded">PROXY_AUTH_ADD</code> to &quot;false&quot; instead.
+              </p>
+              <p>
+                <strong>Only disable this if:</strong> Your app needs to run in host network mode or has specific network requirements that conflict with the proxy service.
               </p>
             </AlertDialogDescription>
           </AlertDialogHeader>

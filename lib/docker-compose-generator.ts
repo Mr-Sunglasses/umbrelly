@@ -3,7 +3,7 @@ import { DockerComposeConfig } from "./docker-compose-types";
 
 export function generateDockerComposeYaml(config: DockerComposeConfig): string {
   const composeObject: any = {
-    version: config.version,
+    version: "3.7",
     services: {},
   };
 
