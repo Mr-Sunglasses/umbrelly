@@ -8,6 +8,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { FieldWithTooltip } from "./field-with-tooltip";
 import { TooltipProvider } from "./ui/tooltip";
 import { ProtectedField } from "./protected-field";
+import { Checkbox } from "./ui/checkbox";
+import { Label } from "./ui/label";
 
 interface UmbrelAppFormProps {
   config: UmbrelAppConfig;
@@ -24,6 +26,7 @@ const categories: { value: AppCategory; label: string }[] = [
   { value: "finance", label: "Finance" },
   { value: "ai", label: "AI" },
   { value: "developer", label: "Developer" },
+  { value: "crypto", label: "Crypto" },
 ];
 
 export function UmbrelAppForm({ config, onChange }: UmbrelAppFormProps) {
@@ -214,6 +217,67 @@ export function UmbrelAppForm({ config, onChange }: UmbrelAppFormProps) {
             value={config.dependencies}
             onChange={(e) => updateField("dependencies", e.target.value)}
           />
+        </FieldWithTooltip>
+
+        {/* Permissions */}
+        <FieldWithTooltip
+          label="Permissions"
+          tooltip="Special system permissions that your app needs to function. Select the permissions your app requires. STORAGE_DOWNLOADS grants access to the shared downloads folder across apps. GPU grants access to GPU hardware for compute-intensive tasks like AI/ML workloads or video encoding."
+        >
+          <div className="space-y-3">
+            <div className="flex items-center space-x-3">
+              <Checkbox
+                id="storage-downloads"
+                checked={config.permissions.includes("STORAGE_DOWNLOADS")}
+                onCheckedChange={(checked) => {
+                  const permissions = config.permissions.split(',').map(p => p.trim()).filter(Boolean);
+                  if (checked) {
+                    if (!permissions.includes("STORAGE_DOWNLOADS")) {
+                      permissions.push("STORAGE_DOWNLOADS");
+                    }
+                  } else {
+                    const index = permissions.indexOf("STORAGE_DOWNLOADS");
+                    if (index > -1) {
+                      permissions.splice(index, 1);
+                    }
+                  }
+                  updateField("permissions", permissions.join(", "));
+                }}
+              />
+              <Label
+                htmlFor="storage-downloads"
+                className="text-sm font-normal cursor-pointer"
+              >
+                STORAGE_DOWNLOADS - Access to shared downloads folder
+              </Label>
+            </div>
+            <div className="flex items-center space-x-3">
+              <Checkbox
+                id="gpu"
+                checked={config.permissions.includes("GPU")}
+                onCheckedChange={(checked) => {
+                  const permissions = config.permissions.split(',').map(p => p.trim()).filter(Boolean);
+                  if (checked) {
+                    if (!permissions.includes("GPU")) {
+                      permissions.push("GPU");
+                    }
+                  } else {
+                    const index = permissions.indexOf("GPU");
+                    if (index > -1) {
+                      permissions.splice(index, 1);
+                    }
+                  }
+                  updateField("permissions", permissions.join(", "));
+                }}
+              />
+              <Label
+                htmlFor="gpu"
+                className="text-sm font-normal cursor-pointer"
+              >
+                GPU - Access to GPU hardware for compute tasks
+              </Label>
+            </div>
+          </div>
         </FieldWithTooltip>
 
         {/* Repo */}

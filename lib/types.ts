@@ -9,7 +9,8 @@ export type AppCategory =
   | "automation"
   | "finance"
   | "ai"
-  | "developer";
+  | "developer"
+  | "crypto";
 
 export interface UmbrelAppConfig {
   manifestVersion: ManifestVersion;
@@ -33,6 +34,7 @@ export interface UmbrelAppConfig {
   deterministicPassword: boolean;
   submitter: string;
   submission: string;
+  permissions: string;
 }
 
 export const defaultUmbrelAppConfig: UmbrelAppConfig = {
@@ -57,6 +59,7 @@ export const defaultUmbrelAppConfig: UmbrelAppConfig = {
   deterministicPassword: false,
   submitter: "",
   submission: "",
+  permissions: "",
 };
 
 export type FileType = "umbrel-app" | "docker-compose";

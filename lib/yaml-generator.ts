@@ -36,6 +36,13 @@ export function generateUmbrelAppYaml(config: UmbrelAppConfig): string {
     yamlObject.gallery = [];
   }
 
+  // Always include permissions - as empty array if not provided, or array if provided
+  if (config.permissions && config.permissions.trim()) {
+    yamlObject.permissions = config.permissions.split(',').map(p => p.trim()).filter(Boolean);
+  } else {
+    yamlObject.permissions = [];
+  }
+
   // Always include path with empty string as default
   yamlObject.path = config.path || "";
 
