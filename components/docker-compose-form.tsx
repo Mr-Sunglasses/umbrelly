@@ -581,14 +581,16 @@ function ServiceEditor({
 
       {/* Ports */}
       <div className="space-y-2">
-        <div className="flex items-center justify-between">
-          <ExpandableField
-            label="Ports (Optional)"
-            description="Port mappings in format 'host:container' (e.g., 8080:80 maps container port 80 to host port 8080). IMPORTANT: You do NOT need to expose your app's main web port if using app_proxy - that's handled automatically via APP_HOST and APP_PORT. Only add ports here for additional services like databases, APIs, or other non-web interfaces that need direct access."
-          >
-            <div />
-          </ExpandableField>
-          <Button size="sm" variant="outline" onClick={onAddPort} className="gap-2">
+        <div className="flex items-start justify-between gap-4">
+          <div className="flex-1 min-w-0">
+            <ExpandableField
+              label="Ports (Optional)"
+              description="Port mappings in format 'host:container' (e.g., 8080:80 maps container port 80 to host port 8080). IMPORTANT: You do NOT need to expose your app's main web port if using app_proxy - that's handled automatically via APP_HOST and APP_PORT. Only add ports here for additional services like databases, APIs, or other non-web interfaces that need direct access."
+            >
+              <div />
+            </ExpandableField>
+          </div>
+          <Button size="sm" variant="outline" onClick={onAddPort} className="gap-2 flex-shrink-0">
             <Plus className="h-3 w-3" />
             Add Port
           </Button>
@@ -613,14 +615,16 @@ function ServiceEditor({
 
       {/* Volumes */}
       <div className="space-y-2">
-        <div className="flex items-center justify-between">
-          <ExpandableField
-            label="Volumes (Optional)"
-            description="Bind mounts for persistent data storage. Choose between ${APP_DATA_DIR}/ (your app's private data directory) or ${UMBREL_ROOT}/data/storage/ (Umbrel's communal storage for downloads/shared files). Format: 'host_path:container_path' or 'host_path:container_path:ro' (read-only). Without volumes, data will be lost when container restarts!"
-          >
-            <div />
-          </ExpandableField>
-          <Button size="sm" variant="outline" onClick={onAddVolume} className="gap-2">
+        <div className="flex items-start justify-between gap-4">
+          <div className="flex-1 min-w-0">
+            <ExpandableField
+              label="Volumes (Optional)"
+              description="Bind mounts for persistent data storage. Choose between ${APP_DATA_DIR}/ (your app's private data directory) or ${UMBREL_ROOT}/data/storage/ (Umbrel's communal storage for downloads/shared files). Format: 'host_path:container_path' or 'host_path:container_path:ro' (read-only). Without volumes, data will be lost when container restarts!"
+            >
+              <div />
+            </ExpandableField>
+          </div>
+          <Button size="sm" variant="outline" onClick={onAddVolume} className="gap-2 flex-shrink-0">
             <Plus className="h-3 w-3" />
             Add Volume
           </Button>
@@ -725,18 +729,20 @@ function ServiceEditor({
 
       {/* Environment Variables */}
       <div className="space-y-3">
-        <div className="flex items-center justify-between">
-          <ExpandableField
-            label="Environment Variables (Optional)"
-            description="Environment variables to pass to your container. Choose Object Format for key-value pairs or Array Format for 'KEY=value' strings."
-          >
-            <div />
-          </ExpandableField>
+        <div className="flex items-start justify-between gap-4">
+          <div className="flex-1 min-w-0">
+            <ExpandableField
+              label="Environment Variables (Optional)"
+              description="Environment variables to pass to your container. Choose Object Format for key-value pairs or Array Format for 'KEY=value' strings."
+            >
+              <div />
+            </ExpandableField>
+          </div>
           <Select
             value={service.environmentFormat}
             onValueChange={(value: "object" | "array") => onUpdate({ environmentFormat: value })}
           >
-            <SelectTrigger className="w-40">
+            <SelectTrigger className="w-40 flex-shrink-0">
               <SelectValue />
             </SelectTrigger>
             <SelectContent position="popper" sideOffset={5}>
