@@ -93,7 +93,11 @@ export default function Home() {
               <UmbrelAppForm config={umbrelConfig} onChange={setUmbrelConfig} />
             )}
             {selectedFile === "docker-compose" && (
-              <DockerComposeForm config={dockerConfig} onChange={setDockerConfig} />
+              <DockerComposeForm 
+                config={dockerConfig} 
+                onChange={setDockerConfig}
+                umbrelAppId={umbrelConfig.id}
+              />
             )}
           </div>
 

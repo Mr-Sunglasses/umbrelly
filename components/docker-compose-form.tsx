@@ -25,9 +25,10 @@ import {
 interface DockerComposeFormProps {
   config: DockerComposeConfig;
   onChange: (config: DockerComposeConfig) => void;
+  umbrelAppId?: string;
 }
 
-export function DockerComposeForm({ config, onChange }: DockerComposeFormProps) {
+export function DockerComposeForm({ config, onChange, umbrelAppId }: DockerComposeFormProps) {
   const [showAppProxyWarning, setShowAppProxyWarning] = useState(false);
   const [pendingAppProxyState, setPendingAppProxyState] = useState(false);
 
@@ -344,6 +345,7 @@ export function DockerComposeForm({ config, onChange }: DockerComposeFormProps) 
                     key={service.id}
                     service={service}
                     index={index}
+                    umbrelAppId={umbrelAppId}
                     onUpdate={(updates) => updateService(service.id, updates)}
                     onRemove={() => removeService(service.id)}
                     onAddPort={() => addPort(service.id)}
@@ -407,6 +409,7 @@ export function DockerComposeForm({ config, onChange }: DockerComposeFormProps) 
 interface ServiceEditorProps {
   service: ServiceConfig;
   index: number;
+  umbrelAppId?: string;
   onUpdate: (updates: Partial<ServiceConfig>) => void;
   onRemove: () => void;
   onAddPort: () => void;
@@ -418,9 +421,88 @@ interface ServiceEditorProps {
   onUpdateEnvironment: (key: string, value: string) => void;
 }
 
+// Helper function to build and render complete file tree
+function buildCompleteFileTree(volumes: string[], appId: string): string {
+  const tree: { [key: string]: any } = {};
+  
+  volumes.forEach(volume => {
+    // Extract host path (before the colon)
+    const hostPath = volume.split(':')[0];
+    
+    // Skip if it's communal storage
+    if (hostPath.includes('${UMBREL_ROOT}/data/storage/')) {
+      return;
+    }
+    
+    // Remove the ${APP_DATA_DIR}/ prefix
+    const relativePath = hostPath.replace(/^\$\{APP_DATA_DIR\}\//, '');
+    
+    if (!relativePath || relativePath === hostPath) {
+      return; // Skip if no valid path
+    }
+    
+    // Split path into parts
+    const parts = relativePath.split('/').filter(Boolean);
+    
+    // Build nested structure
+    let current = tree;
+    parts.forEach((part, index) => {
+      if (!current[part]) {
+        current[part] = index === parts.length - 1 ? null : {};
+      }
+      if (current[part] !== null) {
+        current = current[part];
+      }
+    });
+  });
+  
+  // Build the complete tree as a string
+  const lines: string[] = [];
+  lines.push(appId || 'your-app-id');
+  
+  // Add static files first
+  const hasDataDirs = Object.keys(tree).length > 0;
+  lines.push('├── docker-compose.yml');
+  lines.push(hasDataDirs ? '├── umbrel-app.yml' : '└── umbrel-app.yml');
+  
+  // Add dynamic directories from volumes
+  if (hasDataDirs) {
+    const entries = Object.entries(tree);
+    entries.forEach(([key, value], index) => {
+      const isLast = index === entries.length - 1;
+      renderTreeRecursive(key, value, isLast, '', lines);
+    });
+  }
+  
+  return lines.join('\n');
+}
+
+// Recursive helper to render tree structure
+function renderTreeRecursive(
+  name: string,
+  node: any,
+  isLast: boolean,
+  prefix: string,
+  lines: string[]
+) {
+  const connector = isLast ? '└── ' : '├── ';
+  const extension = isLast ? '    ' : '│   ';
+  
+  lines.push(prefix + connector + name);
+  
+  if (node !== null && typeof node === 'object') {
+    const childEntries = Object.entries(node);
+    childEntries.forEach(([childKey, childValue], childIndex) => {
+      const isLastChild = childIndex === childEntries.length - 1;
+      renderTreeRecursive(childKey, childValue, isLastChild, prefix + extension, lines);
+    });
+  }
+}
+
 function ServiceEditor({
   service,
   index,
+  umbrelAppId,
   onUpdate,
   onRemove,
   onAddPort,
@@ -441,6 +523,9 @@ function ServiceEditor({
       setNewEnvValue("");
     }
   };
+  
+  // Build complete file tree
+  const fileTreeString = buildCompleteFileTree(service.volumes, umbrelAppId || 'your-app-id');
 
   return (
     <div className="p-4 border rounded-lg space-y-4 bg-card">
@@ -620,6 +705,23 @@ function ServiceEditor({
             </div>
           </div>
         ))}
+        
+        {/* File Tree Visualization */}
+        {service.volumes.length > 0 && fileTreeString.split('\n').length > 3 && (
+          <div className="mt-4 p-4 border border-green-500/20 bg-green-500/5 rounded-lg">
+            <div className="flex items-center gap-2 mb-3">
+              <span className="text-sm font-semibold text-green-700 dark:text-green-400">
+                📂 App Directory Structure Preview
+              </span>
+            </div>
+            <pre className="text-xs font-mono text-muted-foreground overflow-x-auto leading-relaxed whitespace-pre">
+{fileTreeString}
+            </pre>
+            <p className="text-xs text-green-600/80 dark:text-green-400/80 mt-2">
+              This shows the directory structure that will be created in your app&apos;s data folder.
+            </p>
+          </div>
+        )}
       </div>
 
       {/* Environment Variables */}
