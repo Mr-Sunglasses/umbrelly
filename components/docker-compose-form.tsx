@@ -486,22 +486,13 @@ function ServiceEditor({
       {/* Restart Policy */}
       <FieldWithTooltip 
         label="Restart Policy" 
-        tooltip="Defines when Docker should automatically restart this container: 'no' = never restart automatically, 'always' = always restart (even after reboot), 'on-failure' = restart only if container exits with error (recommended for Umbrel apps), 'unless-stopped' = always restart unless manually stopped."
+        tooltip="Hardcoded to 'on-failure' - the recommended policy for Umbrel apps. This ensures containers automatically restart if they crash or exit with an error, but won't restart if stopped manually. This is the optimal configuration for reliability and proper container lifecycle management."
       >
-        <Select
-          value={service.restart}
-          onValueChange={(value) => onUpdate({ restart: value })}
-        >
-          <SelectTrigger>
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent position="popper" sideOffset={5}>
-            <SelectItem value="no">no - Never restart</SelectItem>
-            <SelectItem value="always">always - Always restart</SelectItem>
-            <SelectItem value="on-failure">on-failure - Restart on error (recommended)</SelectItem>
-            <SelectItem value="unless-stopped">unless-stopped - Restart unless manually stopped</SelectItem>
-          </SelectContent>
-        </Select>
+        <Input
+          value="on-failure"
+          disabled
+          className="bg-muted cursor-not-allowed"
+        />
       </FieldWithTooltip>
 
       {/* Ports */}

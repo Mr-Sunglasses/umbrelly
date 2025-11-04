@@ -44,9 +44,8 @@ export function generateDockerComposeYaml(config: DockerComposeConfig): string {
       serviceObj.image = service.image;
     }
     
-    if (service.restart) {
-      serviceObj.restart = service.restart;
-    }
+    // Always use on-failure restart policy for Umbrel apps
+    serviceObj.restart = "on-failure";
 
     if (service.ports && service.ports.length > 0) {
       serviceObj.ports = service.ports.filter(p => p.trim());
