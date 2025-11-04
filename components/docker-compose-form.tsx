@@ -6,8 +6,7 @@ import { Input } from "./ui/input";
 import { Textarea } from "./ui/textarea";
 import { Button } from "./ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
-import { FieldWithTooltip } from "./field-with-tooltip";
-import { TooltipProvider } from "./ui/tooltip";
+import { ExpandableField } from "./expandable-field";
 import { Plus, Trash2, AlertTriangle, ChevronDown, Info } from "lucide-react";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "./ui/collapsible";
 import { Separator } from "./ui/separator";
@@ -149,7 +148,7 @@ export function DockerComposeForm({ config, onChange, umbrelAppId }: DockerCompo
   };
 
   return (
-    <TooltipProvider delayDuration={300}>
+    <>
       <div className="h-full overflow-auto">
         <div className="p-6 space-y-6">
           <div>
@@ -160,10 +159,10 @@ export function DockerComposeForm({ config, onChange, umbrelAppId }: DockerCompo
           </div>
 
           {/* Version */}
-          <FieldWithTooltip
+          <ExpandableField
             label="Version"
             required
-            tooltip="The Docker Compose file format version. Umbrel requires version 3.7. This field is locked to ensure compatibility with all Docker Compose features needed for Umbrel apps."
+            description="The Docker Compose file format version. Umbrel requires version 3.7. This field is locked to ensure compatibility with all Docker Compose features needed for Umbrel apps."
           >
             <Input
               placeholder="3.7"
@@ -171,7 +170,7 @@ export function DockerComposeForm({ config, onChange, umbrelAppId }: DockerCompo
               disabled
               className="bg-muted cursor-not-allowed"
             />
-          </FieldWithTooltip>
+          </ExpandableField>
 
           <Separator className="my-6" />
 
@@ -210,10 +209,10 @@ export function DockerComposeForm({ config, onChange, umbrelAppId }: DockerCompo
             {config.appProxy.enabled && (
               <div className="space-y-4 p-4 border rounded-lg bg-muted/30">
                 {/* APP_HOST */}
-                <FieldWithTooltip
+                <ExpandableField
                   label="APP_HOST"
                   required
-                  tooltip="The DNS name of your web container. Format: <image-name>_<service-name>_1 (e.g., 'umbrelly_web_1'). Select a service below to auto-generate, or enter manually."
+                  description="The DNS name of your web container. Format: <image-name>_<service-name>_1 (e.g., 'umbrelly_web_1'). Select a service below to auto-generate, or enter manually."
                 >
                   <div className="space-y-2">
                     {config.services.length > 0 && (
@@ -260,13 +259,13 @@ export function DockerComposeForm({ config, onChange, umbrelAppId }: DockerCompo
                       onChange={(e) => updateAppProxy({ APP_HOST: e.target.value })}
                     />
                   </div>
-                </FieldWithTooltip>
+                </ExpandableField>
 
                 {/* APP_PORT */}
-                <FieldWithTooltip
+                <ExpandableField
                   label="APP_PORT"
                   required
-                  tooltip="The internal port number that your web application is listening on inside the container (e.g., 3000 for Node.js apps, 8080 for many Java apps, 80 for nginx). This is NOT the external port - the proxy will handle external routing."
+                  description="The internal port number that your web application is listening on inside the container (e.g., 3000 for Node.js apps, 8080 for many Java apps, 80 for nginx). This is NOT the external port - the proxy will handle external routing."
                 >
                   <Input
                     type="number"
@@ -274,12 +273,12 @@ export function DockerComposeForm({ config, onChange, umbrelAppId }: DockerCompo
                     value={config.appProxy.APP_PORT}
                     onChange={(e) => updateAppProxy({ APP_PORT: e.target.value })}
                   />
-                </FieldWithTooltip>
+                </ExpandableField>
 
                 {/* Optional: PROXY_AUTH_ADD */}
-                <FieldWithTooltip
+                <ExpandableField
                   label="PROXY_AUTH_ADD (Optional)"
-                  tooltip='Set to "false" to disable Umbrel authentication for this app while keeping the proxy service active for routing. The proxy will still handle traffic routing, but won&apos;t require authentication. Only use this if your app has its own built-in authentication system. When set to false, anyone who can access your Umbrel can access this app without entering the Umbrel password.'
+                  description='Set to "false" to disable Umbrel authentication for this app while keeping the proxy service active for routing. The proxy will still handle traffic routing, but won&apos;t require authentication. Only use this if your app has its own built-in authentication system. When set to false, anyone who can access your Umbrel can access this app without entering the Umbrel password.'
                 >
                   <Select
                     value={config.appProxy.PROXY_AUTH_ADD || "default"}
@@ -293,31 +292,31 @@ export function DockerComposeForm({ config, onChange, umbrelAppId }: DockerCompo
                       <SelectItem value="false">false (disable auth)</SelectItem>
                     </SelectContent>
                   </Select>
-                </FieldWithTooltip>
+                </ExpandableField>
 
                 {/* Optional: PROXY_AUTH_WHITELIST */}
-                <FieldWithTooltip
+                <ExpandableField
                   label="PROXY_AUTH_WHITELIST (Optional)"
-                  tooltip="Whitelist specific URL paths to bypass Umbrel authentication. Useful when your app has a public API that should be accessible without Umbrel login, but the main UI should be protected. Example: '/api/*' allows all /api endpoints without auth. Use * as wildcard."
+                  description="Whitelist specific URL paths to bypass Umbrel authentication. Useful when your app has a public API that should be accessible without Umbrel login, but the main UI should be protected. Example: '/api/*' allows all /api endpoints without auth. Use * as wildcard."
                 >
                   <Input
                     placeholder="/api/*"
                     value={config.appProxy.PROXY_AUTH_WHITELIST || ""}
                     onChange={(e) => updateAppProxy({ PROXY_AUTH_WHITELIST: e.target.value || undefined })}
                   />
-                </FieldWithTooltip>
+                </ExpandableField>
 
                 {/* Optional: PROXY_AUTH_BLACKLIST */}
-                <FieldWithTooltip
+                <ExpandableField
                   label="PROXY_AUTH_BLACKLIST (Optional)"
-                  tooltip="Blacklist specific URL paths to require authentication even when WHITELIST is set to '*'. Useful when you want most of the app public but certain sections protected. Example: Set WHITELIST to '*' and BLACKLIST to '/admin/*' to protect only the admin section with Umbrel password."
+                  description="Blacklist specific URL paths to require authentication even when WHITELIST is set to '*'. Useful when you want most of the app public but certain sections protected. Example: Set WHITELIST to '*' and BLACKLIST to '/admin/*' to protect only the admin section with Umbrel password."
                 >
                   <Input
                     placeholder="/admin/*"
                     value={config.appProxy.PROXY_AUTH_BLACKLIST || ""}
                     onChange={(e) => updateAppProxy({ PROXY_AUTH_BLACKLIST: e.target.value || undefined })}
                   />
-                </FieldWithTooltip>
+                </ExpandableField>
               </div>
             )}
           </div>
@@ -401,7 +400,7 @@ export function DockerComposeForm({ config, onChange, umbrelAppId }: DockerCompo
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </TooltipProvider>
+    </>
   );
 }
 
@@ -543,52 +542,52 @@ function ServiceEditor({
       </div>
 
       {/* Service Name */}
-      <FieldWithTooltip 
+      <ExpandableField 
         label="Service Name" 
         required 
-        tooltip="A unique name for this service within your docker-compose file. Common names are 'web', 'app', 'db', 'redis', etc. This name will be used as the DNS hostname that other services can use to connect to this container. Use lowercase letters, numbers, and hyphens only."
+          description="A unique name for this service within your docker-compose file. Common names are 'web', 'app', 'db', 'redis', etc. This name will be used as the DNS hostname that other services can use to connect to this container. Use lowercase letters, numbers, and hyphens only."
       >
         <Input
           placeholder="web"
           value={service.name}
           onChange={(e) => onUpdate({ name: e.target.value })}
         />
-      </FieldWithTooltip>
+      </ExpandableField>
 
       {/* Image */}
-      <FieldWithTooltip
+      <ExpandableField
         label="Image"
         required
-        tooltip="The Docker image to use for this service. Format: repository/image:tag@sha256:digest. The SHA256 digest is strongly recommended for security and reproducibility - it ensures you always get the exact same image. You can find the digest on Docker Hub or by running 'docker pull image:tag' and checking the output."
+          description="The Docker image to use for this service. Format: repository/image:tag@sha256:digest. The SHA256 digest is strongly recommended for security and reproducibility - it ensures you always get the exact same image. You can find the digest on Docker Hub or by running 'docker pull image:tag' and checking the output."
       >
         <Input
           placeholder="nginx:1.21.0@sha256:abc123..."
           value={service.image}
           onChange={(e) => onUpdate({ image: e.target.value })}
         />
-      </FieldWithTooltip>
+      </ExpandableField>
 
       {/* Restart Policy */}
-      <FieldWithTooltip 
+      <ExpandableField 
         label="Restart Policy" 
-        tooltip="Hardcoded to 'on-failure' - the recommended policy for Umbrel apps. This ensures containers automatically restart if they crash or exit with an error, but won't restart if stopped manually. This is the optimal configuration for reliability and proper container lifecycle management."
+          description="Hardcoded to 'on-failure' - the recommended policy for Umbrel apps. This ensures containers automatically restart if they crash or exit with an error, but won't restart if stopped manually. This is the optimal configuration for reliability and proper container lifecycle management."
       >
         <Input
           value="on-failure"
           disabled
           className="bg-muted cursor-not-allowed"
         />
-      </FieldWithTooltip>
+      </ExpandableField>
 
       {/* Ports */}
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <FieldWithTooltip
+          <ExpandableField
             label="Ports (Optional)"
-            tooltip="Port mappings in format 'host:container' (e.g., 8080:80 maps container port 80 to host port 8080). IMPORTANT: You do NOT need to expose your app's main web port if using app_proxy - that's handled automatically via APP_HOST and APP_PORT. Only add ports here for additional services like databases, APIs, or other non-web interfaces that need direct access."
+            description="Port mappings in format 'host:container' (e.g., 8080:80 maps container port 80 to host port 8080). IMPORTANT: You do NOT need to expose your app's main web port if using app_proxy - that's handled automatically via APP_HOST and APP_PORT. Only add ports here for additional services like databases, APIs, or other non-web interfaces that need direct access."
           >
             <div />
-          </FieldWithTooltip>
+          </ExpandableField>
           <Button size="sm" variant="outline" onClick={onAddPort} className="gap-2">
             <Plus className="h-3 w-3" />
             Add Port
@@ -615,12 +614,12 @@ function ServiceEditor({
       {/* Volumes */}
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <FieldWithTooltip
+          <ExpandableField
             label="Volumes (Optional)"
-            tooltip="Bind mounts for persistent data storage. Choose between ${APP_DATA_DIR}/ (your app's private data directory) or ${UMBREL_ROOT}/data/storage/ (Umbrel's communal storage for downloads/shared files). Format: 'host_path:container_path' or 'host_path:container_path:ro' (read-only). Without volumes, data will be lost when container restarts!"
+            description="Bind mounts for persistent data storage. Choose between ${APP_DATA_DIR}/ (your app's private data directory) or ${UMBREL_ROOT}/data/storage/ (Umbrel's communal storage for downloads/shared files). Format: 'host_path:container_path' or 'host_path:container_path:ro' (read-only). Without volumes, data will be lost when container restarts!"
           >
             <div />
-          </FieldWithTooltip>
+          </ExpandableField>
           <Button size="sm" variant="outline" onClick={onAddVolume} className="gap-2">
             <Plus className="h-3 w-3" />
             Add Volume
@@ -727,12 +726,12 @@ function ServiceEditor({
       {/* Environment Variables */}
       <div className="space-y-3">
         <div className="flex items-center justify-between">
-          <FieldWithTooltip
+          <ExpandableField
             label="Environment Variables (Optional)"
-            tooltip="Environment variables to pass to your container. Choose Object Format for key-value pairs or Array Format for 'KEY=value' strings."
+            description="Environment variables to pass to your container. Choose Object Format for key-value pairs or Array Format for 'KEY=value' strings."
           >
             <div />
-          </FieldWithTooltip>
+          </ExpandableField>
           <Select
             value={service.environmentFormat}
             onValueChange={(value: "object" | "array") => onUpdate({ environmentFormat: value })}
