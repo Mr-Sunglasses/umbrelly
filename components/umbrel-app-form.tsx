@@ -30,9 +30,8 @@ const categories: { value: AppCategory; label: string }[] = [
 
 export function UmbrelAppForm({ config, onChange }: UmbrelAppFormProps) {
   const [releaseNotesEnabled, setReleaseNotesEnabled] = useState(false);
-  const [galleryEnabled, setGalleryEnabled] = useState(false);
 
-  const updateField = (field: keyof UmbrelAppConfig, value: string | boolean) => {
+  const updateField = (field: keyof UmbrelAppConfig, value: string | boolean | number) => {
     onChange({ ...config, [field]: value });
   };
 
@@ -322,24 +321,37 @@ export function UmbrelAppForm({ config, onChange }: UmbrelAppFormProps) {
 
         {/* Gallery */}
         <ExpandableField
-          label="Gallery"
-          description="Screenshot URLs for your app's gallery. LEAVE EMPTY FOR NEW APP SUBMISSIONS - screenshots should be included in your pull request as image files, not URLs. This field is only used for existing apps that are being updated. If filling for an update, provide comma-separated HTTPS URLs to hosted images (1280x720 recommended)."
+          label="Gallery Screenshots"
+          description="Number of screenshot images to include (3-8 recommended). Screenshots should be named 1.jpg, 2.jpg, 3.jpg, etc. and submitted in your pull request. The generator will automatically create the gallery array with numbered filenames."
         >
-          <ProtectedField
-            isEnabled={galleryEnabled}
-            onEnable={() => setGalleryEnabled(true)}
-            warningTitle="Warning: Gallery"
-            warningMessage="For new app submissions, the gallery field should be left empty. Screenshots should be submitted separately through the pull request. Are you sure you want to edit this field?"
-          >
-            {({ disabled }) => (
-              <Input
-                placeholder="Leave empty for new apps"
-                value={config.gallery}
-                onChange={(e) => updateField("gallery", e.target.value)}
-                disabled={disabled}
-              />
+          <div className="space-y-2">
+            <Select
+              value={config.galleryCount.toString()}
+              onValueChange={(value) => updateField("galleryCount", parseInt(value))}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select number of screenshots" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="0">None (0)</SelectItem>
+                <SelectItem value="3">3 screenshots</SelectItem>
+                <SelectItem value="4">4 screenshots</SelectItem>
+                <SelectItem value="5">5 screenshots</SelectItem>
+                <SelectItem value="6">6 screenshots</SelectItem>
+                <SelectItem value="7">7 screenshots</SelectItem>
+                <SelectItem value="8">8 screenshots</SelectItem>
+              </SelectContent>
+            </Select>
+            {config.galleryCount > 0 && (
+              <div className="p-3 rounded-lg bg-muted/50 border">
+                <p className="text-xs font-medium text-muted-foreground mb-2">Preview:</p>
+                <pre className="text-xs font-mono text-muted-foreground">
+gallery:
+{Array.from({ length: config.galleryCount }, (_, i) => `  - ${i + 1}.jpg`).join('\n')}
+                </pre>
+              </div>
             )}
-          </ProtectedField>
+          </div>
         </ExpandableField>
 
         {/* Path */}

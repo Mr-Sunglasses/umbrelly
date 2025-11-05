@@ -29,9 +29,9 @@ export function generateUmbrelAppYaml(config: UmbrelAppConfig): string {
     yamlObject.dependencies = [];
   }
 
-  // Always include gallery - as empty array if not provided, or array if provided
-  if (config.gallery && config.gallery.trim()) {
-    yamlObject.gallery = config.gallery.split(',').map(g => g.trim()).filter(Boolean);
+  // Always include gallery - generate from galleryCount
+  if (config.galleryCount > 0) {
+    yamlObject.gallery = Array.from({ length: config.galleryCount }, (_, i) => `${i + 1}.jpg`);
   } else {
     yamlObject.gallery = [];
   }

@@ -28,6 +28,7 @@ export interface UmbrelAppConfig {
   support: string;
   port: string;
   gallery: string;
+  galleryCount: number;
   path: string;
   defaultUsername: string;
   defaultPassword: string;
@@ -53,6 +54,7 @@ export const defaultUmbrelAppConfig: UmbrelAppConfig = {
   support: "",
   port: "",
   gallery: "",
+  galleryCount: 3,
   path: "",
   defaultUsername: "",
   defaultPassword: "",
