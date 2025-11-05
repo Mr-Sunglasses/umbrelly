@@ -136,7 +136,11 @@ export function UmbrelAppForm({ config, onChange }: UmbrelAppFormProps) {
           <Input
             placeholder="The best app for doing awesome things"
             value={config.tagline}
-            onChange={(e) => updateField("tagline", e.target.value)}
+            onChange={(e) => {
+              // Remove trailing periods
+              const value = e.target.value.replace(/\.+$/, '');
+              updateField("tagline", value);
+            }}
           />
         </ExpandableField>
 
