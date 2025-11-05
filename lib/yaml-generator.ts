@@ -83,6 +83,56 @@ export function generateUmbrelAppYaml(config: UmbrelAppConfig): string {
   yamlOutput = yamlOutput.replace(/^path: ''$/m, 'path: ""');
   yamlOutput = yamlOutput.replace(/^defaultUsername: ''$/m, 'defaultUsername: ""');
   
+  // Format releaseNotes with >- (same logic as description)
+  if (config.releaseNotes && config.releaseNotes.trim()) {
+    const paragraphs = config.releaseNotes
+      .split(/\n\s*\n/)
+      .map(p => p.trim())
+      .filter(Boolean);
+    
+    if (paragraphs.length > 0) {
+      // Use line-by-line approach to avoid regex issues
+      const lines = yamlOutput.split('\n');
+      const newLines: string[] = [];
+      let i = 0;
+      let skipMode = false;
+      
+      while (i < lines.length) {
+        const line = lines[i];
+        
+        if (line.startsWith('releaseNotes:')) {
+          // Found the releaseNotes field - replace it
+          if (paragraphs.length === 1) {
+            newLines.push('releaseNotes: >-');
+            newLines.push(`  ${paragraphs[0]}`);
+          } else {
+            newLines.push('releaseNotes: >-');
+            newLines.push(`  ${paragraphs.join('\n  \n  ')}`);
+          }
+          skipMode = true;
+          i++;
+          continue;
+        }
+        
+        if (skipMode) {
+          // Skip indented lines that are part of releaseNotes
+          if (line.startsWith('  ') || line.trim() === '') {
+            i++;
+            continue;
+          } else {
+            // Found next field, stop skipping
+            skipMode = false;
+          }
+        }
+        
+        newLines.push(line);
+        i++;
+      }
+      
+      yamlOutput = newLines.join('\n');
+    }
+  }
+  
   // Only handle defaultPassword if deterministicPassword is false
   if (!config.deterministicPassword) {
     yamlOutput = yamlOutput.replace(/^defaultPassword: ''$/m, 'defaultPassword: ""');
@@ -108,6 +158,57 @@ export function generateUmbrelAppYaml(config: UmbrelAppConfig): string {
       const cleanValue = value.replace(/^['"]|['"]$/g, '');
       return `defaultPassword: "${cleanValue}"`;
     });
+  }
+
+  // Format description with >- (folded block scalar with strip chomping)
+  if (config.description) {
+    // Split by blank lines (paragraph breaks) to preserve paragraph structure
+    const paragraphs = config.description
+      .split(/\n\s*\n/)  // Split on one or more blank lines
+      .map(p => p.trim())
+      .filter(Boolean);
+    
+    if (paragraphs.length > 0) {
+      // Use line-by-line approach to avoid regex issues
+      const lines = yamlOutput.split('\n');
+      const newLines: string[] = [];
+      let i = 0;
+      let skipMode = false;
+      
+      while (i < lines.length) {
+        const line = lines[i];
+        
+        if (line.startsWith('description:')) {
+          // Found the description field - replace it
+          if (paragraphs.length === 1) {
+            newLines.push('description: >-');
+            newLines.push(`  ${paragraphs[0]}`);
+          } else {
+            newLines.push('description: >-');
+            newLines.push(`  ${paragraphs.join('\n  \n  ')}`);
+          }
+          skipMode = true;
+          i++;
+          continue;
+        }
+        
+        if (skipMode) {
+          // Skip indented lines that are part of the description
+          if (line.startsWith('  ') || line.trim() === '') {
+            i++;
+            continue;
+          } else {
+            // Found next field, stop skipping
+            skipMode = false;
+          }
+        }
+        
+        newLines.push(line);
+        i++;
+      }
+      
+      yamlOutput = newLines.join('\n');
+    }
   }
 
   return yamlOutput;
