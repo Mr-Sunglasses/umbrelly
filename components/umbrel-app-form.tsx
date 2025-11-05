@@ -350,8 +350,7 @@ export function UmbrelAppForm({ config, onChange }: UmbrelAppFormProps) {
               <div className="p-3 rounded-lg bg-muted/50 border">
                 <p className="text-xs font-medium text-muted-foreground mb-2">Preview:</p>
                 <pre className="text-xs font-mono text-muted-foreground">
-gallery:
-{Array.from({ length: config.galleryCount }, (_, i) => `  - ${i + 1}.jpg`).join('\n')}
+{`gallery:\n${Array.from({ length: config.galleryCount }, (_, i) => `  - ${i + 1}.jpg`).join('\n')}`}
                 </pre>
               </div>
             )}
