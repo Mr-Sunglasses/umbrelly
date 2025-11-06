@@ -85,52 +85,57 @@ export function generateUmbrelAppYaml(config: UmbrelAppConfig): string {
   
   // Format releaseNotes with >- (same logic as description)
   if (config.releaseNotes && config.releaseNotes.trim()) {
-    const paragraphs = config.releaseNotes
-      .split(/\n\s*\n/)
-      .map(p => p.trim())
-      .filter(Boolean);
+    // Process lines: regular lines stay as-is, empty lines become double empty lines
+    // This ensures blank lines in input create paragraph breaks in output
+    const lines = config.releaseNotes.split('\n').map(line => line.trim());
+    const processedLines: string[] = [];
     
-    if (paragraphs.length > 0) {
-      // Use line-by-line approach to avoid regex issues
-      const lines = yamlOutput.split('\n');
-      const newLines: string[] = [];
-      let i = 0;
-      let skipMode = false;
+    for (const line of lines) {
+      if (line === '') {
+        // Empty line in input -> add two empty lines in YAML for paragraph break
+        processedLines.push('');
+        processedLines.push('');
+      } else {
+        processedLines.push(line);
+      }
+    }
+    
+    const content = processedLines.join('\n  ');
+    
+    // Use line-by-line approach to avoid regex issues
+    const yamlLines = yamlOutput.split('\n');
+    const newLines: string[] = [];
+    let i = 0;
+    let skipMode = false;
+    
+    while (i < yamlLines.length) {
+      const line = yamlLines[i];
       
-      while (i < lines.length) {
-        const line = lines[i];
-        
-        if (line.startsWith('releaseNotes:')) {
-          // Found the releaseNotes field - replace it
-          if (paragraphs.length === 1) {
-            newLines.push('releaseNotes: >-');
-            newLines.push(`  ${paragraphs[0]}`);
-          } else {
-            newLines.push('releaseNotes: >-');
-            newLines.push(`  ${paragraphs.join('\n  \n  ')}`);
-          }
-          skipMode = true;
-          i++;
-          continue;
-        }
-        
-        if (skipMode) {
-          // Skip indented lines that are part of releaseNotes
-          if (line.startsWith('  ') || line.trim() === '') {
-            i++;
-            continue;
-          } else {
-            // Found next field, stop skipping
-            skipMode = false;
-          }
-        }
-        
-        newLines.push(line);
+      if (line.startsWith('releaseNotes:')) {
+        // Found the releaseNotes field - replace it
+        newLines.push('releaseNotes: >-');
+        newLines.push(`  ${content}`);
+        skipMode = true;
         i++;
+        continue;
       }
       
-      yamlOutput = newLines.join('\n');
+      if (skipMode) {
+        // Skip indented lines that are part of releaseNotes
+        if (line.startsWith('  ') || line.trim() === '') {
+          i++;
+          continue;
+        } else {
+          // Found next field, stop skipping
+          skipMode = false;
+        }
+      }
+      
+      newLines.push(line);
+      i++;
     }
+    
+    yamlOutput = newLines.join('\n');
   }
   
   // Only handle defaultPassword if deterministicPassword is false
@@ -162,53 +167,57 @@ export function generateUmbrelAppYaml(config: UmbrelAppConfig): string {
 
   // Format description with >- (folded block scalar with strip chomping)
   if (config.description) {
-    // Split by blank lines (paragraph breaks) to preserve paragraph structure
-    const paragraphs = config.description
-      .split(/\n\s*\n/)  // Split on one or more blank lines
-      .map(p => p.trim())
-      .filter(Boolean);
+    // Process lines: regular lines stay as-is, empty lines become double empty lines
+    // This ensures blank lines in input create paragraph breaks in output
+    const lines = config.description.split('\n').map(line => line.trim());
+    const processedLines: string[] = [];
     
-    if (paragraphs.length > 0) {
-      // Use line-by-line approach to avoid regex issues
-      const lines = yamlOutput.split('\n');
-      const newLines: string[] = [];
-      let i = 0;
-      let skipMode = false;
+    for (const line of lines) {
+      if (line === '') {
+        // Empty line in input -> add two empty lines in YAML for paragraph break
+        processedLines.push('');
+        processedLines.push('');
+      } else {
+        processedLines.push(line);
+      }
+    }
+    
+    const content = processedLines.join('\n  ');
+    
+    // Use line-by-line approach to avoid regex issues
+    const yamlLines = yamlOutput.split('\n');
+    const newLines: string[] = [];
+    let i = 0;
+    let skipMode = false;
+    
+    while (i < yamlLines.length) {
+      const line = yamlLines[i];
       
-      while (i < lines.length) {
-        const line = lines[i];
-        
-        if (line.startsWith('description:')) {
-          // Found the description field - replace it
-          if (paragraphs.length === 1) {
-            newLines.push('description: >-');
-            newLines.push(`  ${paragraphs[0]}`);
-          } else {
-            newLines.push('description: >-');
-            newLines.push(`  ${paragraphs.join('\n  \n  ')}`);
-          }
-          skipMode = true;
-          i++;
-          continue;
-        }
-        
-        if (skipMode) {
-          // Skip indented lines that are part of the description
-          if (line.startsWith('  ') || line.trim() === '') {
-            i++;
-            continue;
-          } else {
-            // Found next field, stop skipping
-            skipMode = false;
-          }
-        }
-        
-        newLines.push(line);
+      if (line.startsWith('description:')) {
+        // Found the description field - replace it
+        newLines.push('description: >-');
+        newLines.push(`  ${content}`);
+        skipMode = true;
         i++;
+        continue;
       }
       
-      yamlOutput = newLines.join('\n');
+      if (skipMode) {
+        // Skip indented lines that are part of the description
+        if (line.startsWith('  ') || line.trim() === '') {
+          i++;
+          continue;
+        } else {
+          // Found next field, stop skipping
+          skipMode = false;
+        }
+      }
+      
+      newLines.push(line);
+      i++;
     }
+    
+    yamlOutput = newLines.join('\n');
   }
 
   return yamlOutput;
