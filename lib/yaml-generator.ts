@@ -86,7 +86,7 @@ export function generateUmbrelAppYaml(config: UmbrelAppConfig): string {
   // Format releaseNotes with >- (same logic as description)
   if (config.releaseNotes && config.releaseNotes.trim()) {
     // Process lines: regular lines stay as-is, empty lines become double empty lines
-    // This ensures blank lines in input create paragraph breaks in output
+    // List items (starting with -) get extra indentation
     const lines = config.releaseNotes.split('\n').map(line => line.trim());
     const processedLines: string[] = [];
     
@@ -95,6 +95,9 @@ export function generateUmbrelAppYaml(config: UmbrelAppConfig): string {
         // Empty line in input -> add two empty lines in YAML for paragraph break
         processedLines.push('');
         processedLines.push('');
+      } else if (line.startsWith('-')) {
+        // List item -> add two extra spaces for proper indentation
+        processedLines.push(`  ${line}`);
       } else {
         processedLines.push(line);
       }
@@ -168,7 +171,7 @@ export function generateUmbrelAppYaml(config: UmbrelAppConfig): string {
   // Format description with >- (folded block scalar with strip chomping)
   if (config.description) {
     // Process lines: regular lines stay as-is, empty lines become double empty lines
-    // This ensures blank lines in input create paragraph breaks in output
+    // List items (starting with -) get extra indentation
     const lines = config.description.split('\n').map(line => line.trim());
     const processedLines: string[] = [];
     
@@ -177,6 +180,9 @@ export function generateUmbrelAppYaml(config: UmbrelAppConfig): string {
         // Empty line in input -> add two empty lines in YAML for paragraph break
         processedLines.push('');
         processedLines.push('');
+      } else if (line.startsWith('-')) {
+        // List item -> add two extra spaces for proper indentation
+        processedLines.push(`  ${line}`);
       } else {
         processedLines.push(line);
       }
